@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -50,4 +51,21 @@ func (s *Store) Set(d *Document) {
 	ON CONFLICT (uid ) DO UPDATE
 	SET data=$2 WHERE d.uid=$1`, d.UID.String(), d.Data)
 	tx.Commit()
+}
+
+func (s *Store) GetByUUID(uuids ...uuid.UUID) ([]Document, error) {
+	documents := []Document{}
+	ids := make([]string, len(uuids))
+	for i, uid := range uuids {
+		// FIXME: OMG it's ugly!
+		ids[i] = "'" + uid.String() + "'"
+	}
+	err := s.db.Select(&documents, `
+		SELECT *
+		FROM document
+		WHERE uid IN (`+strings.Join(ids, ",")+")")
+	if err != nil {
+		return nil, err
+	}
+	return documents, nil
 }
