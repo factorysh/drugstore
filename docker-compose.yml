@@ -1,0 +1,10 @@
+version: "3"
+services:
+  pq:
+    image: postgres:9.6
+    environment:
+      POSTGRES_PASSWORD: toto
+      POSTGRES_USER: drugstore
+      POSTGRES_DB: drugstore
+    ports:
+      - 5432:5432 
