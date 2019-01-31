@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS document (
 	data        JSONB,
 	PRIMARY KEY (uid)
   );
+CREATE INDEX idxginp ON document USING GIN (data jsonb_path_ops);
 `
 
 // New Store
@@ -36,7 +37,10 @@ func New(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.MustExec(schema)
+	_, err = db.Exec(schema)
+	if err != nil {
+		return nil, err
+	}
 	return &Store{
 		db: db,
 	}, nil
