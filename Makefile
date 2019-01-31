@@ -1,5 +1,6 @@
 up:
 	docker-compose up -d
+	sleep 3
 
 down:
 	docker-compose down
