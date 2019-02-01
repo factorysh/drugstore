@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 )
 
 type RawDocument struct {
@@ -66,9 +68,13 @@ func (s *Store) Set(d *Document) error {
 		return err
 	}
 	tx := s.db.MustBegin()
+	dd, err = json.Marshal(d.Data)
+	if err != nil {
+		return err
+	}
 	tx.MustExec(`
 	INSERT INTO  document AS d (uid, data) VALUES ($1, $2)
-	ON CONFLICT (uid ) DO UPDATE
+	ON CONFLICT (uid) DO UPDATE
 	SET data=$2 WHERE d.uid=$1`, d.UID.String(), dd)
 	tx.Commit()
 	return nil
@@ -102,4 +108,47 @@ func (s *Store) GetByUUID(uuids ...uuid.UUID) ([]Document, error) {
 		}
 	}
 	return ds, nil
+}
+
+func (s *Store) GetByPath(paths ...string) ([]Document, error) {
+	if len(paths) > len(s.paths) {
+		return nil, fmt.Errorf("Path too long : %s", paths)
+	}
+	buf := bytes.NewBuffer([]byte(`
+		SELECT *
+		FROM document
+		WHERE
+	`))
+	for i, p := range paths {
+		buf.WriteString(` data @> '{"`)
+		buf.WriteString(s.paths[i])
+		buf.WriteString(`": "`)
+		buf.WriteString(p)
+		buf.WriteString(`"}'`)
+		if i+1 < len(paths) {
+			buf.WriteString(" AND ")
+		}
+	}
+	l := log.WithField("sql", buf.String())
+	var documents []RawDocument
+	err := s.db.Select(&documents, buf.String())
+	if err != nil {
+		l.WithError(err).Error("GetByPath")
+		return nil, err
+	}
+	l.Info("GetByPath")
+	docs := make([]Document, len(documents))
+	for i, d := range documents {
+		var dd map[string]interface{}
+		err := json.Unmarshal(d.Data, &dd)
+		if err != nil {
+			l.WithError(err).Error("GetByPath")
+			return nil, err
+		}
+		docs[i] = Document{
+			UID:  d.UID,
+			Data: dd,
+		}
+	}
+	return docs, nil
 }
