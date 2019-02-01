@@ -3,9 +3,11 @@ package store
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
+	jmespath "github.com/jmespath/go-jmespath"
 
 	"encoding/json"
 
@@ -26,8 +28,10 @@ type Document struct {
 
 // Store store things
 type Store struct {
-	db    *sqlx.DB
-	paths []string
+	db        *sqlx.DB
+	paths     []string
+	parser    *jmespath.Parser
+	startPath *regexp.Regexp
 }
 
 var schema = `
@@ -50,8 +54,10 @@ func New(dsn string, paths []string) (*Store, error) {
 		return nil, err
 	}
 	return &Store{
-		db:    db,
-		paths: paths,
+		db:        db,
+		paths:     paths,
+		parser:    jmespath.NewParser(),
+		startPath: regexp.MustCompile("^[a-zA-Z0-9:_.]+"),
 	}, nil
 }
 
@@ -117,16 +123,19 @@ func (s *Store) GetByPath(paths ...string) ([]Document, error) {
 	buf := bytes.NewBuffer([]byte(`
 		SELECT *
 		FROM document
-		WHERE
 	`))
-	for i, p := range paths {
-		buf.WriteString(` data @> '{"`)
-		buf.WriteString(s.paths[i])
-		buf.WriteString(`": "`)
-		buf.WriteString(p)
-		buf.WriteString(`"}'`)
-		if i+1 < len(paths) {
-			buf.WriteString(" AND ")
+	if len(paths) > 0 {
+		buf.WriteString("WHERE ")
+
+		for i, p := range paths {
+			buf.WriteString(` data @> '{"`)
+			buf.WriteString(s.paths[i])
+			buf.WriteString(`": "`)
+			buf.WriteString(p)
+			buf.WriteString(`"}'`)
+			if i+1 < len(paths) {
+				buf.WriteString(" AND ")
+			}
 		}
 	}
 	l := log.WithField("sql", buf.String())
@@ -151,4 +160,107 @@ func (s *Store) GetByPath(paths ...string) ([]Document, error) {
 		}
 	}
 	return docs, nil
+}
+
+func (s *Store) GetByJMEspath(path string) ([]Document, error) {
+	/*
+		n, err := s.parser.Parse(path)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(n)
+	*/
+	p := s.startPath.FindString(path)
+	var docs []Document
+	var err error
+	if p != "" {
+		if strings.HasSuffix(p, ".") {
+			p = p[:len(p)-1]
+		}
+		pp := strings.Split(p, ".")
+		docs, err = s.GetByPath(pp...)
+		if err != nil {
+			return nil, err
+		}
+	}
+	data := make(map[string]interface{})
+	for _, d := range docs {
+		for _, p := range s.paths {
+			k, ok := d.Data[p]
+			if !ok {
+				return nil, fmt.Errorf("Can't find key %s", p)
+			}
+			fmt.Println(k)
+			kk, ok := k.(string)
+			if !ok {
+				return nil, fmt.Errorf("Key is not a string : %s => %s", p, k)
+			}
+			data[kk] = d
+		}
+	}
+	jm, err := jmespath.Search(path, data)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(jm)
+	fmt.Println(data)
+	return nil, nil
+}
+
+func (s *Store) byLabel(docs []Document, key string) (map[string][]Document, error) {
+	data := make(map[string][]Document)
+	for _, doc := range docs {
+		v, ok := doc.Data[key]
+		if !ok {
+			return nil, fmt.Errorf("Key not found : %s", key)
+		}
+		vv, ok := v.(string)
+		if !ok {
+			return nil, fmt.Errorf("Value is not a string : %s => %s", key, v)
+		}
+		_, ok = data[vv]
+		if !ok {
+			data[vv] = []Document{doc}
+		} else {
+			data[vv] = append(data[vv], doc)
+		}
+	}
+	return data, nil
+}
+
+func recurse(data map[string]interface{}, keys []string) (map[string]interface{}, []string) {
+	key := keys[0]
+	var m map[string]interface{}
+	var ok bool
+	mm, ok := data[key]
+	if !ok {
+		m = make(map[string]interface{})
+		data[key] = m
+	} else {
+		m, ok = mm.(map[string]interface{})
+		if !ok {
+			panic("Unknow type")
+		}
+	}
+	if len(keys) > 1 {
+		return recurse(m, keys[1:])
+	}
+	return m, []string{}
+}
+
+func (s *Store) tree(data map[string]interface{}, doc map[string]interface{}) error {
+	keys := make([]string, len(s.paths))
+	for i, path := range s.paths {
+		v, ok := doc[path]
+		if !ok {
+
+		}
+		vv, ok := v.(string)
+
+		keys[i] = vv
+	}
+	leaf, _ := recurse(data, keys[:len(keys)-1])
+	leaf[keys[len(keys)-1]] = doc
+
+	return nil
 }
