@@ -18,6 +18,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:b87714e57a511d88f307aba7d5b63522da12bed0a050889c81272fc50f71100e"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3433f3ea46d9f8019119e7dd41274e112a2359a9"
+  version = "0.2.2"
+
+[[projects]]
   digest = "1:6c41d4f998a03b6604227ccad36edaed6126c397e5d78709ef4814a1145a6757"
   name = "github.com/jmoiron/sqlx"
   packages = [
@@ -95,6 +103,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/google/uuid",
+    "github.com/jmespath/go-jmespath",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "github.com/sirupsen/logrus",
