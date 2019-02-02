@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 func (s *Store) GetByUUID(uuids ...uuid.UUID) ([]Document, error) {
@@ -24,9 +25,12 @@ func (s *Store) GetByUUID(uuids ...uuid.UUID) ([]Document, error) {
 		}
 	}
 	buf.WriteRune(')')
+	l := log.WithField("sql", buf.String())
 	err := s.db.Select(&documents, buf.String())
 	if err != nil {
+		l.WithError(err).Error("GetByUUID")
 		return nil, err
 	}
+	l.Info("GetByUUID")
 	return raw2docs(documents)
 }

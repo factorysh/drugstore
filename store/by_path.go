@@ -2,7 +2,6 @@ package store
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
@@ -38,18 +37,5 @@ func (s *Store) GetByPath(paths ...string) ([]Document, error) {
 		return nil, err
 	}
 	l.Info("GetByPath")
-	docs := make([]Document, len(documents))
-	for i, d := range documents {
-		var dd map[string]interface{}
-		err := json.Unmarshal(d.Data, &dd)
-		if err != nil {
-			l.WithError(err).Error("GetByPath")
-			return nil, err
-		}
-		docs[i] = Document{
-			UID:  d.UID,
-			Data: dd,
-		}
-	}
-	return docs, nil
+	return raw2docs(documents)
 }
