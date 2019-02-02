@@ -67,10 +67,7 @@ func TestStore(t *testing.T) {
 	assert.NoError(t, err)
 	spew.Dump(names)
 
-	tree := make(map[string]interface{})
-	for _, a := range all {
-		err = s.tree(tree, a.Data)
-		assert.NoError(t, err)
-	}
+	tree, err := s.Documents2tree(all)
+	assert.NoError(t, err)
 	spew.Dump(tree)
 }

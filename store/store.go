@@ -113,6 +113,18 @@ func recurse(data map[string]interface{}, keys []string) (map[string]interface{}
 	return m, []string{}
 }
 
+// Documents2tree build a tree from a collection of documents
+func (s *Store) Documents2tree(docs []Document) (map[string]interface{}, error) {
+	tree := make(map[string]interface{})
+	for _, doc := range docs {
+		err := s.tree(tree, doc.Data)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return tree, nil
+}
+
 func (s *Store) tree(data map[string]interface{}, doc map[string]interface{}) error {
 	keys := make([]string, len(s.paths))
 	for i, path := range s.paths {
