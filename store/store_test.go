@@ -58,8 +58,13 @@ func TestStore(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
 
-	docs, err = s.GetByJMEspath("drugstore.Alice.*")
+	resp, err := s.GetByJMEspath("*.user.*[]|[?age>`18`]")
 	assert.NoError(t, err)
+	spew.Dump(resp)
+	r, ok := resp.([]interface{})
+	assert.True(t, ok)
+	assert.Len(t, r, 1)
+	//assert.Equal(t, "Alice", r[0]["name"])
 
 	all, err := s.GetByPath()
 	assert.NoError(t, err)
@@ -68,6 +73,10 @@ func TestStore(t *testing.T) {
 	spew.Dump(names)
 
 	tree, err := s.Documents2tree(all)
+	assert.NoError(t, err)
+	spew.Dump(tree)
+
+	resp, err = s.GetByGJson("drugstore.*.*")
 	assert.NoError(t, err)
 	spew.Dump(tree)
 }

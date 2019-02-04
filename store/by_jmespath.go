@@ -8,47 +8,36 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (s *Store) GetByJMEspath(path string) ([]Document, error) {
+func (s *Store) guessByPath(path string) ([]Document, error) {
 	p := s.startPath.FindString(path)
-	var docs []Document
-	var err error
-	l := log.WithField("path", path)
 	if p != "" {
 		if strings.HasSuffix(p, ".") {
 			p = p[:len(p)-1]
 		}
 		pp := strings.Split(p, ".")
-		docs, err = s.GetByPath(pp...)
-		if err != nil {
-			l.WithError(err).Error("GetByJMEspath")
-			return nil, err
-		}
+		return s.GetByPath(pp...)
+	} else {
+		return s.GetByPath()
 	}
-	data := make(map[string]interface{})
-	for _, d := range docs {
-		for _, p := range s.paths {
-			k, ok := d.Data[p]
-			if !ok {
-				err := fmt.Errorf("Can't find key %s", p)
-				l.WithError(err).Error("GetByJMEspath")
-				return nil, err
-			}
-			fmt.Println(k)
-			kk, ok := k.(string)
-			if !ok {
-				err := fmt.Errorf("Key is not a string : %s => %s", p, k)
-				l.WithError(err).Error("GetByJMEspath")
-				return nil, err
-			}
-			data[kk] = d
-		}
+}
+
+func (s *Store) GetByJMEspath(path string) (interface{}, error) {
+	docs, err := s.guessByPath(path)
+	l := log.WithField("path", path)
+	if err != nil {
+		l.WithError(err).Error("GetByJMEspath")
+		return nil, err
+	}
+	fmt.Println("docs", docs)
+	data, err := s.Documents2tree(docs)
+	if err != nil {
+		l.WithError(err).Error("GetByJMEspath")
+		return nil, err
 	}
 	jm, err := jmespath.Search(path, data)
 	if err != nil {
 		l.WithError(err).Error("GetByJMEspath")
 		return nil, err
 	}
-	fmt.Println(jm)
-	fmt.Println(data)
-	return nil, nil
+	return jm, nil
 }
