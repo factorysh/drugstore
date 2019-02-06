@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/google/uuid"
+
 	jmespath "github.com/jmespath/go-jmespath"
 
 	"encoding/json"
@@ -140,4 +142,20 @@ func (s *Store) tree(data map[string]interface{}, doc map[string]interface{}) er
 	leaf[keys[len(keys)-1]] = doc
 
 	return nil
+}
+
+func (s *Store) Delete(uid uuid.UUID) error {
+	_, err := s.db.Queryx("DELETE FROM document WHERE uid=$1", uid.String())
+	return err
+}
+
+func (s *Store) Length() (int, error) {
+	rows, err := s.db.Queryx("SELECT COUNT(*) AS count FROM document")
+	if err != nil {
+		return 0, err
+	}
+	rows.Next()
+	var l int
+	err = rows.Rows.Scan(&l)
+	return l, err
 }

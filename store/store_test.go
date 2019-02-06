@@ -49,6 +49,10 @@ func TestStore(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
+	l, err := s.Length()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, l)
+
 	docs, err := s.GetByUUID(uid)
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
@@ -79,4 +83,10 @@ func TestStore(t *testing.T) {
 	resp, err = s.GetByGJson("drugstore.*.*")
 	assert.NoError(t, err)
 	spew.Dump(tree)
+
+	err = s.Delete(uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9"))
+	assert.NoError(t, err)
+	l, err = s.Length()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, l)
 }
