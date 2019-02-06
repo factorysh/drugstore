@@ -10,3 +10,4 @@ psql: up
 
 test:
 	go test -v github.com/factorysh/drugstore/store
+	go test -v github.com/factorysh/drugstore/rpc

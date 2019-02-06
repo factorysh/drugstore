@@ -2,12 +2,50 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:7d191fd0c54ff370eaf6116a14dafe2a328df487baea280699f597aae858d00d"
+  name = "github.com/aristanetworks/goarista"
+  packages = ["monotime"]
+  pruneopts = "UT"
+  revision = "2166578f34481200ec14ddd6b9c4115db36c7b62"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   pruneopts = "UT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:e47d51dab652d26c3fba6f8cba403f922d02757a82abdc77e90df7948daf296e"
+  name = "github.com/deckarep/golang-set"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cbaa98ba5575e67703b32b4b19f73c91f3c4159e"
+  version = "v1.7.1"
+
+[[projects]]
+  digest = "1:8c557281af95c95ad1cd2356e3c98b358493994e9d698a44b149a7c61623662c"
+  name = "github.com/ethereum/go-ethereum"
+  packages = [
+    "common/hexutil",
+    "common/mclock",
+    "log",
+    "p2p/netutil",
+    "rpc",
+  ]
+  pruneopts = "UT"
+  revision = "7fa3509e2eaf1a4ebc12344590e5699406690f15"
+  version = "v1.8.22"
+
+[[projects]]
+  digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
 
 [[projects]]
   digest = "1:236d7e1bdb50d8f68559af37dbcf9d142d56b431c9b2176d41e2a009b664cda8"
@@ -64,6 +102,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
+  version = "v1.6.0"
+
+[[projects]]
   digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -105,6 +151,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:7427036b6d926b3d1fa0773771820735b35554a98296f1074df440ee30a97296"
+  name = "golang.org/x/net"
+  packages = ["websocket"]
+  pruneopts = "UT"
+  revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
+
+[[projects]]
+  branch = "master"
   digest = "1:44b10545049ca2aa524f2985e88854f0e51fa4a1f0ff0b6b98cbfeb7ae3d2837"
   name = "golang.org/x/sys"
   packages = [
@@ -114,11 +168,20 @@
   pruneopts = "UT"
   revision = "980327fe3c65509adaad5a9ff06abdf7611b4411"
 
+[[projects]]
+  branch = "v2"
+  digest = "1:3d3f9391ab615be8655ae0d686a1564f3fec413979bb1aaf018bac1ec1bb1cc7"
+  name = "gopkg.in/natefinch/npipe.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c1b8fa8bdccecb0b8db834ee0b92fdbcfa606dd6"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
+    "github.com/ethereum/go-ethereum/rpc",
     "github.com/google/uuid",
     "github.com/jmespath/go-jmespath",
     "github.com/jmoiron/sqlx",
