@@ -15,6 +15,8 @@ func TestStore(t *testing.T) {
 		[]string{"project", "ns", "name"})
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
+	_, err = s.db.Queryx("DELETE FROM document")
+	assert.NoError(t, err)
 	fmt.Println(s)
 	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
 	err = s.Set(&Document{
