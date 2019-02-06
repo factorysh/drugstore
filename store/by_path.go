@@ -16,17 +16,24 @@ func (s *Store) GetByPath(paths ...string) ([]Document, error) {
 		FROM document
 	`))
 	if len(paths) > 0 {
-		buf.WriteString("WHERE ")
-
+		size := 0
 		for i, p := range paths {
+			if p == "" {
+				continue
+			}
+			// TODO assert p [a-zA-Z0-9:_]
+			if size == 0 {
+				buf.WriteString("WHERE ")
+			}
+			if size > 0 {
+				buf.WriteString(" AND ")
+			}
 			buf.WriteString(` data @> '{"`)
 			buf.WriteString(s.paths[i])
 			buf.WriteString(`": "`)
 			buf.WriteString(p)
 			buf.WriteString(`"}'`)
-			if i+1 < len(paths) {
-				buf.WriteString(" AND ")
-			}
+			size++
 		}
 	}
 	l := log.WithField("sql", buf.String())

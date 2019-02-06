@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -61,6 +61,14 @@ func TestStore(t *testing.T) {
 	docs, err = s.GetByPath("drugstore")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
+
+	docs, err = s.GetByPath("", "user")
+	assert.NoError(t, err)
+	assert.Len(t, docs, 2)
+
+	docs, err = s.GetByPath("", "", "Charle")
+	assert.NoError(t, err)
+	assert.Len(t, docs, 1)
 
 	resp, err := s.GetByJMEspath("*.user.*[]|[?age>`18`]")
 	assert.NoError(t, err)
