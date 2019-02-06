@@ -1,8 +1,11 @@
 package rpc
 
 import (
+	"encoding/json"
+
 	"github.com/ethereum/go-ethereum/rpc"
 
+	_patch "github.com/evanphx/json-patch"
 	"github.com/factorysh/drugstore/store"
 	"github.com/google/uuid"
 )
@@ -76,4 +79,38 @@ func (s *Service) Get(id string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	return d[0].Data, nil
+}
+
+func (s *Service) Patch(id string, patch interface{}) error {
+	rawPatch, err := json.Marshal(patch)
+	if err != nil {
+		return err
+	}
+	u, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+	d, err := s.store.GetByUUID(u)
+	if err != nil {
+		return err
+	}
+	rawDoc, err := json.Marshal(d[0].Data)
+	if err != nil {
+		return err
+	}
+	rawMerge, err := _patch.MergePatch(rawDoc, rawPatch)
+	if err != nil {
+		return err
+	}
+	var merge map[string]interface{}
+	err = json.Unmarshal(rawMerge, &merge)
+	if err != nil {
+		return err
+	}
+	s.store.Set(&store.Document{
+		UID:  u,
+		Data: merge,
+	})
+	return nil
+
 }

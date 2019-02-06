@@ -40,6 +40,14 @@
   version = "v1.8.22"
 
 [[projects]]
+  digest = "1:f1f2bd73c025d24c3b93abf6364bccb802cf2fdedaa44360804c67800e8fab8d"
+  name = "github.com/evanphx/json-patch"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "72bf35d0ff611848c1dc9df0f976c81192392fa5"
+  version = "v4.1.0"
+
+[[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
   name = "github.com/go-stack/stack"
   packages = ["."]
@@ -182,6 +190,7 @@
   input-imports = [
     "github.com/davecgh/go-spew/spew",
     "github.com/ethereum/go-ethereum/rpc",
+    "github.com/evanphx/json-patch",
     "github.com/google/uuid",
     "github.com/jmespath/go-jmespath",
     "github.com/jmoiron/sqlx",
