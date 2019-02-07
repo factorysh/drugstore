@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/rpc"
 
@@ -29,7 +30,7 @@ func NewServer(s *Service) *rpc.Server {
 }
 
 // Create a document, return its id
-func (s *Service) Create(document map[string]interface{}) (string, error) {
+func (s *Service) Create(class string, document map[string]interface{}) (string, error) {
 	u, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
@@ -38,7 +39,10 @@ func (s *Service) Create(document map[string]interface{}) (string, error) {
 		UID:  u,
 		Data: document,
 	}
-	s.store.Set(d)
+	err = s.store.Set(class, d)
+	if err != nil {
+		return "", err
+	}
 	return u.String(), nil
 }
 
@@ -49,11 +53,14 @@ func (s *Service) Update(id string, document map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = s.store.GetByUUID(u)
+	d, err := s.store.GetByUUID(u)
 	if err != nil {
 		return err
 	}
-	s.store.Set(&store.Document{
+	if len(d) == 0 {
+		return fmt.Errorf("Unknown document : %s", id)
+	}
+	s.store.Set(d[0].Class, &store.Document{
 		UID:  u,
 		Data: document,
 	})
@@ -107,7 +114,7 @@ func (s *Service) Patch(id string, patch interface{}) error {
 	if err != nil {
 		return err
 	}
-	s.store.Set(&store.Document{
+	s.store.Set(d[0].Class, &store.Document{
 		UID:  u,
 		Data: merge,
 	})

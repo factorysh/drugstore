@@ -2,18 +2,23 @@ package store
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type RawDocument struct {
-	UID  uuid.UUID       `db:"uid"`
-	Data json.RawMessage `db:"data"`
+	UID   uuid.UUID       `db:"uid"`
+	Data  json.RawMessage `db:"data"`
+	Mtime time.Time       `db:"mtime"`
+	Ctime time.Time       `db:"ctime"`
+	Class string          `db:"class"`
 }
 
 type Document struct {
-	UID  uuid.UUID
-	Data map[string]interface{}
+	UID   uuid.UUID
+	Class string
+	Data  map[string]interface{}
 }
 
 func raw2docs(raws []RawDocument) ([]Document, error) {
@@ -25,8 +30,9 @@ func raw2docs(raws []RawDocument) ([]Document, error) {
 			return nil, err
 		}
 		docs[i] = Document{
-			UID:  d.UID,
-			Data: dd,
+			UID:   d.UID,
+			Class: d.Class,
+			Data:  dd,
 		}
 	}
 	return docs, nil

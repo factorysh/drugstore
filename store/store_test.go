@@ -10,16 +10,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	PROJECT = "project"
+)
+
 func TestStore(t *testing.T) {
-	s, err := New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable",
-		[]string{"project", "ns", "name"})
+	s, err := New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable")
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
-	_, err = s.db.Queryx("DELETE FROM document")
+	s.Class(PROJECT, []string{"project", "ns", "name"})
+	err = s.Reset()
 	assert.NoError(t, err)
 	fmt.Println(s)
 	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
-	err = s.Set(&Document{
+	err = s.Set(PROJECT, &Document{
 		UID: uid,
 		Data: map[string]interface{}{
 			"project": "drugstore",
@@ -29,7 +33,7 @@ func TestStore(t *testing.T) {
 		},
 	})
 	assert.NoError(t, err)
-	err = s.Set(&Document{
+	err = s.Set(PROJECT, &Document{
 		UID: uid,
 		Data: map[string]interface{}{
 			"project": "drugstore",
@@ -40,7 +44,7 @@ func TestStore(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	err = s.Set(&Document{
+	err = s.Set(PROJECT, &Document{
 		UID: uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9"),
 		Data: map[string]interface{}{
 			"project": "drugstore",
@@ -60,19 +64,19 @@ func TestStore(t *testing.T) {
 	assert.Len(t, docs, 1)
 	assert.Equal(t, "Alice", docs[0].Data["name"])
 
-	docs, err = s.GetByPath("drugstore")
+	docs, err = s.GetByPath(PROJECT, "drugstore")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
 
-	docs, err = s.GetByPath("", "user")
+	docs, err = s.GetByPath(PROJECT, "", "user")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
 
-	docs, err = s.GetByPath("", "", "Charle")
+	docs, err = s.GetByPath(PROJECT, "", "", "Charle")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
 
-	resp, err := s.GetByJMEspath("*.user.*[]|[?age>`18`]")
+	resp, err := s.GetByJMEspath(PROJECT, "*.user.*[]|[?age>`18`]")
 	assert.NoError(t, err)
 	spew.Dump(resp)
 	r, ok := resp.([]interface{})
@@ -80,17 +84,13 @@ func TestStore(t *testing.T) {
 	assert.Len(t, r, 1)
 	//assert.Equal(t, "Alice", r[0]["name"])
 
-	all, err := s.GetByPath()
+	all, err := s.GetByPath(PROJECT)
 	assert.NoError(t, err)
 	names, err := s.byLabel(all, "name")
 	assert.NoError(t, err)
 	spew.Dump(names)
 
-	tree, err := s.Documents2tree(all)
-	assert.NoError(t, err)
-	spew.Dump(tree)
-
-	resp, err = s.GetByGJson("drugstore.*.*")
+	tree, err := s.Documents2tree(PROJECT, all)
 	assert.NoError(t, err)
 	spew.Dump(tree)
 

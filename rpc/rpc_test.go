@@ -11,13 +11,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	PROJECT = "project"
+)
+
 func TestService(t *testing.T) {
-	s, err := store.New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable",
-		[]string{"project", "ns", "name"})
+	s, err := store.New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable")
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
+	s.Class(PROJECT, []string{"project", "ns", "name"})
 	service := New(s)
-	id, err := service.Create(map[string]interface{}{
+	id, err := service.Create(PROJECT, map[string]interface{}{
 		"project": "drugstore",
 		"ns":      "user",
 		"name":    "bob",

@@ -7,8 +7,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (s *Store) GetByPath(paths ...string) ([]Document, error) {
-	if len(paths) > len(s.paths) {
+func (s *Store) GetByPath(class string, paths ...string) ([]Document, error) {
+	pathz, ok := s.paths[class]
+	if !ok {
+		return nil, fmt.Errorf("Unknown class : %s", class)
+	}
+	if len(paths) > len(pathz) {
 		return nil, fmt.Errorf("Path too long : %s", paths)
 	}
 	buf := bytes.NewBuffer([]byte(`
@@ -29,7 +33,7 @@ func (s *Store) GetByPath(paths ...string) ([]Document, error) {
 				buf.WriteString(" AND ")
 			}
 			buf.WriteString(` data @> '{"`)
-			buf.WriteString(s.paths[i])
+			buf.WriteString(pathz[i])
 			buf.WriteString(`": "`)
 			buf.WriteString(p)
 			buf.WriteString(`"}'`)

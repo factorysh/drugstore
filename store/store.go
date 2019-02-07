@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -17,7 +18,7 @@ import (
 // Store store things
 type Store struct {
 	db        *sqlx.DB
-	paths     []string
+	paths     map[string][]string // class => paths
 	parser    *jmespath.Parser
 	startPath *regexp.Regexp
 }
@@ -25,6 +26,9 @@ type Store struct {
 var schema = `
 CREATE TABLE IF NOT EXISTS document (
 	uid         UUID UNIQUE,
+	mtime		TIMESTAMP,
+	ctime       TIMESTAMP NOT NULL,
+	class       TEXT NOT NULL,
 	data        JSONB,
 	PRIMARY KEY (uid)
   );
@@ -32,7 +36,7 @@ CREATE INDEX IF NOT EXISTS idxginp ON document USING GIN (data jsonb_path_ops);
 `
 
 // New Store
-func New(dsn string, paths []string) (*Store, error) {
+func New(dsn string) (*Store, error) {
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -43,15 +47,23 @@ func New(dsn string, paths []string) (*Store, error) {
 	}
 	return &Store{
 		db:        db,
-		paths:     paths,
+		paths:     make(map[string][]string),
 		parser:    jmespath.NewParser(),
 		startPath: regexp.MustCompile("^[a-zA-Z0-9:_.]+"),
 	}, nil
 }
 
+func (s *Store) Class(name string, paths []string) {
+	s.paths[name] = paths
+}
+
 // Set Document
-func (s *Store) Set(d *Document) error {
-	for _, path := range s.paths {
+func (s *Store) Set(class string, d *Document) error {
+	paths, ok := s.paths[class]
+	if !ok {
+		return fmt.Errorf("Unknown class : %s", class)
+	}
+	for _, path := range paths {
 		_, ok := d.Data[path]
 		if !ok {
 			return fmt.Errorf("Key %s is mandatory", path)
@@ -67,9 +79,10 @@ func (s *Store) Set(d *Document) error {
 		return err
 	}
 	tx.MustExec(`
-	INSERT INTO  document AS d (uid, data) VALUES ($1, $2)
+	INSERT INTO  document AS d (uid, class, data, ctime, mtime)
+	VALUES ($1, $2, $3, $4, $4)
 	ON CONFLICT (uid) DO UPDATE
-	SET data=$2 WHERE d.uid=$1`, d.UID.String(), dd)
+	SET data=$3, mtime=$4 WHERE d.uid=$1`, d.UID.String(), class, dd, time.Now())
 	tx.Commit()
 	return nil
 }
@@ -116,10 +129,10 @@ func recurse(data map[string]interface{}, keys []string) (map[string]interface{}
 }
 
 // Documents2tree build a tree from a collection of documents
-func (s *Store) Documents2tree(docs []Document) (map[string]interface{}, error) {
+func (s *Store) Documents2tree(class string, docs []Document) (map[string]interface{}, error) {
 	tree := make(map[string]interface{})
 	for _, doc := range docs {
-		err := s.tree(tree, doc.Data)
+		err := s.tree(class, tree, doc.Data)
 		if err != nil {
 			return nil, err
 		}
@@ -127,9 +140,10 @@ func (s *Store) Documents2tree(docs []Document) (map[string]interface{}, error) 
 	return tree, nil
 }
 
-func (s *Store) tree(data map[string]interface{}, doc map[string]interface{}) error {
-	keys := make([]string, len(s.paths))
-	for i, path := range s.paths {
+func (s *Store) tree(class string, data map[string]interface{}, doc map[string]interface{}) error {
+	paths := s.paths[class]
+	keys := make([]string, len(paths))
+	for i, path := range paths {
 		v, ok := doc[path]
 		if !ok {
 
@@ -158,4 +172,9 @@ func (s *Store) Length() (int, error) {
 	var l int
 	err = rows.Rows.Scan(&l)
 	return l, err
+}
+
+func (s *Store) Reset() error {
+	_, err := s.db.Queryx("DELETE FROM document")
+	return err
 }

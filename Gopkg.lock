@@ -134,22 +134,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:e406c8abe158c24e64775a6381085014943301ffa175a7b53c33cb391ff9b4f2"
-  name = "github.com/tidwall/gjson"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5a96cfda705e1762dc0671e26b0b78925ad97e29"
-  version = "v1.1.5"
-
-[[projects]]
-  digest = "1:8453ddbed197809ee8ca28b06bd04e127bec9912deb4ba451fea7a1eca578328"
-  name = "github.com/tidwall/match"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "33827db735fff6510490d69a8622612558a557ed"
-  version = "v1.0.1"
-
-[[projects]]
   branch = "master"
   digest = "1:fde12c4da6237363bf36b81b59aa36a43d28061167ec4acb0d41fc49464e28b9"
   name = "golang.org/x/crypto"
@@ -197,7 +181,6 @@
     "github.com/lib/pq",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
-    "github.com/tidwall/gjson",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
