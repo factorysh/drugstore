@@ -26,7 +26,7 @@ type Store struct {
 var schema = `
 CREATE TABLE IF NOT EXISTS document (
 	uid         UUID UNIQUE,
-	mtime		TIMESTAMP,
+	mtime		TIMESTAMP NOT NULL,
 	ctime       TIMESTAMP NOT NULL,
 	class       TEXT NOT NULL,
 	data        JSONB,
