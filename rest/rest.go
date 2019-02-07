@@ -19,7 +19,13 @@ type REST struct {
 
 func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 	slugs := strings.Split(r.RequestURI, "/")
-	docs, err := rest.store.GetByPath(slugs...)
+	if len(slugs) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	class := slugs[0]
+	slugs = slugs[1:]
+	docs, err := rest.store.GetByPath(class, slugs...)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,8 +48,14 @@ func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rest *REST) Query(w http.ResponseWriter, r *http.Request) {
+	slugs := strings.Split(r.RequestURI, "/")
+	if len(slugs) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	class := slugs[0]
 	q := r.URL.Query().Get("q")
-	resp, err := rest.store.GetByJMEspath(q)
+	resp, err := rest.store.GetByJMEspath(class, q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,6 +74,15 @@ func (rest *REST) Create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+	slugs := strings.Split(r.RequestURI, "/")
+	if len(slugs) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	class := slugs[0]
+	fmt.Println(r.Header.Get("content-type"))
+	fmt.Println("r", r)
+	fmt.Println("length", r.ContentLength)
 	body, err := r.GetBody()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,10 +104,11 @@ func (rest *REST) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	rest.store.Set(&store.Document{
+	rest.store.Set(class, &store.Document{
 		UID:  id,
 		Data: data,
 	})
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
 	fmt.Fprintf(w, `"%s"`, id.String())
 }
