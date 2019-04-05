@@ -8,6 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
+
 	"github.com/factorysh/drugstore/store"
 
 	"github.com/onrik/logrus/filename"
@@ -60,6 +62,31 @@ func TestPost(t *testing.T) {
 	assert.Equal(t, 201, res.StatusCode)
 
 	rez, err := ioutil.ReadAll(res.Body)
+	assert.NoError(t, err)
+	fmt.Println(string(rez))
+}
+
+func TestGet(t *testing.T) {
+	r, err := rest()
+	assert.NoError(t, err)
+	ts := httptest.NewServer(http.HandlerFunc(r.GetByPath))
+	defer ts.Close()
+	id, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	err = r.store.Set("project", &store.Document{
+		UID: id,
+		Data: map[string]interface{}{
+			"name":    "yan",
+			"ns":      "user",
+			"project": "drugstore",
+			"age":     42,
+			"likes":   []string{"banana", "apple"},
+		},
+	})
+	assert.NoError(t, err)
+	resp, err := http.Get(ts.URL + "/project/drugstore/user/yan")
+	assert.NoError(t, err)
+	rez, err := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
 	fmt.Println(string(rez))
 }

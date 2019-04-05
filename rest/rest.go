@@ -25,7 +25,7 @@ func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	l := log.WithField("url", r.URL.String())
-	slugs := strings.Split(r.RequestURI, "/")
+	slugs := strings.Split(r.RequestURI, "/")[1:]
 	if len(slugs) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
