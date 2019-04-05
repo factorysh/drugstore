@@ -102,6 +102,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:96df5bdca983e4b8c62682af5b67100b187d582ac6db0968d8af52e84138d1e6"
+  name = "github.com/onrik/logrus"
+  packages = ["filename"]
+  pruneopts = "UT"
+  revision = "a09d5cdcdc628f91fda03e7dcaf2b9a624aae49c"
+  version = "0.2.2"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -168,6 +176,7 @@
     "github.com/jmespath/go-jmespath",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
+    "github.com/onrik/logrus/filename",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
   ]
