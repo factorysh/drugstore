@@ -81,10 +81,6 @@ func (s *Store) Set(class string, d *Document) error {
 		d.UID = &u
 	}
 	tx := s.db.MustBegin()
-	dd, err = json.Marshal(d.Data)
-	if err != nil {
-		return err
-	}
 	tx.MustExec(`
 	INSERT INTO  document AS d (uid, class, data, ctime, mtime)
 	VALUES ($1, $2, $3, $4, $4)
