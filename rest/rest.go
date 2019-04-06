@@ -63,14 +63,15 @@ func (rest *REST) Query(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	slugs := strings.Split(r.RequestURI, "/")
+	slugs := strings.Split(r.URL.Path, "/")
 	l := log.WithField("url", r.URL.String()).WithField("slugs", slugs)
 	if len(slugs) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	class := slugs[0]
+	class := slugs[1]
 	q := r.URL.Query().Get("q")
+	l.WithField("class", class).WithField("q", q)
 	resp, err := rest.store.GetByJMEspath(class, q)
 	if err != nil {
 		l.WithError(err).Error()

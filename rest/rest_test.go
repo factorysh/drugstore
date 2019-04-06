@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/google/uuid"
@@ -133,4 +134,47 @@ func TestGet(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, rs, 2)
 
+}
+
+func TestQuery(t *testing.T) {
+	r, err := rest()
+	assert.NoError(t, err)
+	ts := httptest.NewServer(http.HandlerFunc(r.Query))
+	defer ts.Close()
+
+	err = r.store.Set("project", &store.Document{
+		Data: map[string]interface{}{
+			"name":    "yann",
+			"ns":      "user",
+			"project": "drugstore",
+			"age":     42,
+			"likes":   []string{"banana", "apple"},
+		},
+	})
+	assert.NoError(t, err)
+
+	err = r.store.Set("project", &store.Document{
+		Data: map[string]interface{}{
+			"name":    "walter",
+			"ns":      "user",
+			"project": "drugstore",
+			"age":     23,
+			"likes":   []string{"orange"},
+		},
+	})
+	assert.NoError(t, err)
+	type responses []map[string]interface{}
+
+	var rs responses
+	resp, err := http.DefaultClient.Get(ts.URL + "/project?q=" +
+		url.QueryEscape("*.user.*[]|[?name=='walter']"))
+	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	rez, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println(string(rez))
+	err = json.Unmarshal(rez, &rs)
+	assert.NoError(t, err)
+	assert.Len(t, rs, 1)
+	assert.Equal(t, float64(23), rs[0]["age"])
 }
