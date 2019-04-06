@@ -48,7 +48,7 @@ func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		buf.Write(j)
-		if i < len(docs) {
+		if i+1 < len(docs) {
 			buf.WriteString(",\n")
 		}
 	}

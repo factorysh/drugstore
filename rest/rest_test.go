@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -76,7 +77,7 @@ func TestGet(t *testing.T) {
 	err = r.store.Set("project", &store.Document{
 		UID: id,
 		Data: map[string]interface{}{
-			"name":    "yan",
+			"name":    "yann",
 			"ns":      "user",
 			"project": "drugstore",
 			"age":     42,
@@ -84,9 +85,28 @@ func TestGet(t *testing.T) {
 		},
 	})
 	assert.NoError(t, err)
-	resp, err := http.Get(ts.URL + "/project/drugstore/user/yan")
+
+	type responses []map[string]interface{}
+
+	resp, err := http.Get(ts.URL + "/project/drugstore/user/yann")
 	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
 	rez, err := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
 	fmt.Println(string(rez))
+	var rs responses
+	err = json.Unmarshal(rez, &rs)
+	assert.NoError(t, err)
+	assert.Len(t, rs, 1)
+	assert.Equal(t, "yann", rs[0]["name"])
+
+	resp, err = http.Get(ts.URL + "/project/drugstore/user/xavier")
+	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	rez, err = ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println(string(rez))
+	err = json.Unmarshal(rez, &rs)
+	assert.NoError(t, err)
+	assert.Len(t, rs, 0)
 }
