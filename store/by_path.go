@@ -7,13 +7,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (s *Store) GetByPath(class string, paths ...string) ([]Document, error) {
+// getSQLByPath build sql SELECT with a paths.
+func (s *Store) getSQLByPath(class string, paths ...string) (string, error) {
 	pathz, ok := s.paths[class]
 	if !ok {
-		return nil, fmt.Errorf("Unknown class : %s", class)
+		return "", fmt.Errorf("Unknown class : %s", class)
 	}
 	if len(paths) > len(pathz) {
-		return nil, fmt.Errorf("Path too long : %s", paths)
+		return "", fmt.Errorf("Path too long : %s", paths)
 	}
 	buf := bytes.NewBuffer([]byte(`
 		SELECT *
@@ -40,13 +41,23 @@ func (s *Store) GetByPath(class string, paths ...string) ([]Document, error) {
 			size++
 		}
 	}
-	l := log.WithField("sql", buf.String())
-	var documents []RawDocument
-	err := s.db.Select(&documents, buf.String())
+	return buf.String(), nil
+}
+
+func (s *Store) GetByPath(class string, paths ...string) ([]Document, error) {
+	l := log.WithField("class", class).WithField("paths", paths)
+	sql, err := s.getSQLByPath(class, paths...)
 	if err != nil {
 		l.WithError(err).Error("GetByPath")
 		return nil, err
 	}
-	l.Info("GetByPath")
+	l = l.WithField("sql", sql)
+	var documents []RawDocument
+	err = s.db.Select(&documents, sql)
+	if err != nil {
+		l.WithError(err).Error("GetByPath")
+		return nil, err
+	}
+	l.WithField("#documents", len(documents)).Info("GetByPath")
 	return raw2docs(documents)
 }
