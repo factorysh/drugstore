@@ -86,6 +86,19 @@ func TestGet(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
+	id, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	err = r.store.Set("project", &store.Document{
+		UID: id,
+		Data: map[string]interface{}{
+			"name":    "walter",
+			"ns":      "user",
+			"project": "drugstore",
+			"age":     23,
+			"likes":   []string{"orange"},
+		},
+	})
+	assert.NoError(t, err)
 	type responses []map[string]interface{}
 
 	resp, err := http.Get(ts.URL + "/project/drugstore/user/yann")
@@ -109,4 +122,15 @@ func TestGet(t *testing.T) {
 	err = json.Unmarshal(rez, &rs)
 	assert.NoError(t, err)
 	assert.Len(t, rs, 0)
+
+	resp, err = http.Get(ts.URL + "/project/drugstore/user/")
+	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	rez, err = ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println(string(rez))
+	err = json.Unmarshal(rez, &rs)
+	assert.NoError(t, err)
+	assert.Len(t, rs, 2)
+
 }
