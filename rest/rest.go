@@ -135,7 +135,7 @@ func (rest *REST) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = rest.store.Set(class, &store.Document{
-		UID:  id,
+		UID:  &id,
 		Data: data,
 	})
 	if err != nil {

@@ -57,7 +57,7 @@ func (s *Store) Class(name string, paths []string) {
 	s.paths[name] = paths
 }
 
-// Set Document
+// Set Document (create or update)
 func (s *Store) Set(class string, d *Document) error {
 	paths, ok := s.paths[class]
 	if !ok {
@@ -72,6 +72,13 @@ func (s *Store) Set(class string, d *Document) error {
 	dd, err := json.Marshal(d.Data)
 	if err != nil {
 		return err
+	}
+	if d.UID == nil {
+		u, err := uuid.NewRandom()
+		if err != nil {
+			return err
+		}
+		d.UID = &u
 	}
 	tx := s.db.MustBegin()
 	dd, err = json.Marshal(d.Data)

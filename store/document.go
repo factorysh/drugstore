@@ -8,7 +8,7 @@ import (
 )
 
 type RawDocument struct {
-	UID   uuid.UUID       `db:"uid"`
+	UID   *uuid.UUID      `db:"uid"`
 	Data  json.RawMessage `db:"data"`
 	Mtime time.Time       `db:"mtime"`
 	Ctime time.Time       `db:"ctime"`
@@ -16,7 +16,7 @@ type RawDocument struct {
 }
 
 type Document struct {
-	UID   uuid.UUID
+	UID   *uuid.UUID
 	Class string
 	Data  map[string]interface{}
 }

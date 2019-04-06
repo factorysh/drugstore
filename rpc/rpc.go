@@ -36,7 +36,7 @@ func (s *Service) Create(class string, document map[string]interface{}) (string,
 		return "", err
 	}
 	d := &store.Document{
-		UID:  u,
+		UID:  &u,
 		Data: document,
 	}
 	err = s.store.Set(class, d)
@@ -61,7 +61,7 @@ func (s *Service) Update(id string, document map[string]interface{}) error {
 		return fmt.Errorf("Unknown document : %s", id)
 	}
 	s.store.Set(d[0].Class, &store.Document{
-		UID:  u,
+		UID:  &u,
 		Data: document,
 	})
 	return nil
@@ -115,7 +115,7 @@ func (s *Service) Patch(id string, patch interface{}) error {
 		return err
 	}
 	s.store.Set(d[0].Class, &store.Document{
-		UID:  u,
+		UID:  &u,
 		Data: merge,
 	})
 	return nil

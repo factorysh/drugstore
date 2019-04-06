@@ -75,7 +75,7 @@ func TestGet(t *testing.T) {
 	id, err := uuid.NewRandom()
 	assert.NoError(t, err)
 	err = r.store.Set("project", &store.Document{
-		UID: id,
+		UID: &id,
 		Data: map[string]interface{}{
 			"name":    "yann",
 			"ns":      "user",
@@ -89,7 +89,7 @@ func TestGet(t *testing.T) {
 	id, err = uuid.NewRandom()
 	assert.NoError(t, err)
 	err = r.store.Set("project", &store.Document{
-		UID: id,
+		UID: &id,
 		Data: map[string]interface{}{
 			"name":    "walter",
 			"ns":      "user",

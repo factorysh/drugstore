@@ -24,7 +24,7 @@ func TestStore(t *testing.T) {
 	fmt.Println(s)
 	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
 	err = s.Set(PROJECT, &Document{
-		UID: uid,
+		UID: &uid,
 		Data: map[string]interface{}{
 			"project": "drugstore",
 			"name":    "Bob",
@@ -34,7 +34,7 @@ func TestStore(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	err = s.Set(PROJECT, &Document{
-		UID: uid,
+		UID: &uid,
 		Data: map[string]interface{}{
 			"project": "drugstore",
 			"name":    "Alice",
@@ -44,8 +44,9 @@ func TestStore(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
+	u := uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9")
 	err = s.Set(PROJECT, &Document{
-		UID: uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9"),
+		UID: &u,
 		Data: map[string]interface{}{
 			"project": "drugstore",
 			"ns":      "user",
