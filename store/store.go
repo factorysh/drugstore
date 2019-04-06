@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 
 	jmespath "github.com/jmespath/go-jmespath"
 
@@ -59,26 +60,49 @@ func (s *Store) Class(name string, paths []string) {
 
 // Set Document (create or update)
 func (s *Store) Set(class string, d *Document) error {
+	l := log.WithField("class", class).WithField("document", d)
 	paths, ok := s.paths[class]
 	if !ok {
-		return fmt.Errorf("Unknown class : %s", class)
+		err := fmt.Errorf("Unknown class : %s", class)
+		l.WithError(err).Error()
+		return err
 	}
+	l = l.WithField("paths", paths)
 	for _, path := range paths {
 		_, ok := d.Data[path]
 		if !ok {
-			return fmt.Errorf("Key %s is mandatory", path)
+			err := fmt.Errorf("Key %s is mandatory", path)
+			l.WithError(err).Error()
+			return err
 		}
 	}
 	dd, err := json.Marshal(d.Data)
 	if err != nil {
+		l.WithError(err).Error()
 		return err
 	}
 	if d.UID == nil {
-		u, err := uuid.NewRandom()
+		pp := make([]string, len(paths))
+		for i, p := range paths {
+			pp[i] = d.Data[p].(string)
+		}
+		alreadyHere, err := s.GetByPath(class, pp...)
 		if err != nil {
+			l.WithError(err).Error()
 			return err
 		}
-		d.UID = &u
+		if len(alreadyHere) == 0 {
+			u, err := uuid.NewRandom()
+			if err != nil {
+				l.WithError(err).Error()
+				return err
+			}
+			d.UID = &u
+			l.WithField("action", "create")
+		} else {
+			d.UID = alreadyHere[0].UID
+			l.WithField("action", "update")
+		}
 	}
 	tx := s.db.MustBegin()
 	tx.MustExec(`
@@ -87,6 +111,7 @@ func (s *Store) Set(class string, d *Document) error {
 	ON CONFLICT (uid) DO UPDATE
 	SET data=$3, mtime=$4 WHERE d.uid=$1`, d.UID.String(), class, dd, time.Now())
 	tx.Commit()
+	l.Info()
 	return nil
 }
 
