@@ -13,11 +13,11 @@ An object can be :
 
 ```json
 {
-  "product": "drugstore", ①
-  "namespace": "user", ①
-  "name": "zoe", ①
-  "likes": ["banana", "apple"], ②
-  "age": 42 ②
+  "product①": "drugstore",
+  "namespace①": "user",
+  "name①": "zoe",
+  "likes②": ["banana", "apple"],
+  "age②": 42
 }
 ```
 
