@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"strings"
 
 	jmespath "github.com/jmespath/go-jmespath"
@@ -22,22 +21,24 @@ func (s *Store) guessByPath(class string, path string) ([]Document, error) {
 }
 
 func (s *Store) GetByJMEspath(class string, path string) (interface{}, error) {
+	l := log.WithField("class", class).WithField("path", path)
 	docs, err := s.guessByPath(class, path)
-	l := log.WithField("path", path)
 	if err != nil {
 		l.WithError(err).Error("GetByJMEspath")
 		return nil, err
 	}
-	fmt.Println("docs", docs)
+	l = l.WithField("docs", docs)
 	data, err := s.Documents2tree(class, docs)
 	if err != nil {
 		l.WithError(err).Error("GetByJMEspath")
 		return nil, err
 	}
+	l = l.WithField("data", data)
 	jm, err := jmespath.Search(path, data)
 	if err != nil {
 		l.WithError(err).Error("GetByJMEspath")
 		return nil, err
 	}
+	l.WithField("jm", jm).Info("GetByJMEspath")
 	return jm, nil
 }
