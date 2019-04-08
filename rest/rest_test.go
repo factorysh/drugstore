@@ -136,6 +136,18 @@ func TestGet(t *testing.T) {
 
 }
 
+func TestHome(t *testing.T) {
+	r := New(nil)
+	ts := httptest.NewServer(http.HandlerFunc(r.Handler))
+	defer ts.Close()
+	resp, err := http.DefaultClient.Get(ts.URL)
+	assert.NoError(t, err)
+	rez, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println(string(rez))
+	assert.True(t, false)
+}
+
 func TestQuery(t *testing.T) {
 	r, err := rest()
 	assert.NoError(t, err)

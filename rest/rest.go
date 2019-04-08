@@ -18,6 +18,41 @@ type REST struct {
 	store *store.Store
 }
 
+func New(store *store.Store) *REST {
+	r := &REST{
+		store: store,
+	}
+
+	return r
+}
+
+func (rest *REST) Handler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		home(w)
+		return
+	}
+}
+
+func home(w http.ResponseWriter) {
+	// http://anime.en.utf8art.com/arc/ghibli_6.html
+	w.Write([]byte(
+		"	　　　　　　　　　　　　　　　　　 ﾍ\n" +
+			"　　　　　　　　　　　　　　 ﾍ　　　/　|\n" +
+			"　　　　　　　　　　　　　 / ｜　 /　　|\n" +
+			"　　　　　　　　　 }YL　 ﾉ　　|　ﾉ 　 　|\n" +
+			"　　　　　　　　　ﾉ　　ヽﾐ}　F′〉　 ｯ┘\n" +
+			"　 　 　　　　　　{^^ . -┴┴‐ミ　　ﾐ.._\n" +
+			"　 　 　　　　　　> ´　　　　　　　　　　ミ､\n" +
+			"　　　　　　　　/　　　　　　　　　　　　　 ﾐ､\n" +
+			"　　　　　　　 ﾉ　　p￣ヽ_　　　　　　　　　ﾐ､\n" +
+			"　　　　　rﾍ⌒　　 `ー ′　　　　　　　　　 ﾐ､\n" +
+			"　　　　ﾆ{^　　　　　　　　　　　　　　　　　　 ﾐ､\n" +
+			"　　　　 〈､_　　　＝三二_ー--　　　　　　　　 l\n" +
+			"　　　　∠_　　　　　ｰ＝= 二_ｰ\n" +
+			"　 　／　　 ¨ヾ､\n" +
+			"　 ﾉﾍ　　　　　　ヽ\n"))
+}
+
 // GetByPath get an object, from its path
 func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
