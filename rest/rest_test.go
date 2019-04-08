@@ -166,7 +166,7 @@ func TestQuery(t *testing.T) {
 	type responses []map[string]interface{}
 
 	var rs responses
-	resp, err := http.DefaultClient.Get(ts.URL + "/project?q=" +
+	resp, err := http.DefaultClient.Get(ts.URL + "/project/_search?q=" +
 		url.QueryEscape("*.user.*[]|[?name=='walter']"))
 	assert.NoError(t, err)
 	assert.Equal(t, 200, resp.StatusCode)

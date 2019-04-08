@@ -65,11 +65,15 @@ func (rest *REST) Query(w http.ResponseWriter, r *http.Request) {
 	}
 	slugs := strings.Split(r.URL.Path, "/")
 	l := log.WithField("url", r.URL.String()).WithField("slugs", slugs)
-	if len(slugs) == 0 {
+	if len(slugs) < 3 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	class := slugs[1]
+	if slugs[2] != "_search" {
+		w.WriteHeader(400)
+		return
+	}
 	q := r.URL.Query().Get("q")
 	l.WithField("class", class).WithField("q", q)
 	resp, err := rest.store.GetByJMEspath(class, q)
