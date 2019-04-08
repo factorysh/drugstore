@@ -26,17 +26,37 @@ func New(store *store.Store) *REST {
 	return r
 }
 
+// Handler routes all handlers
 func (rest *REST) Handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		home(w)
 		return
 	}
+	slugs := strings.Split(r.URL.Path, "/")[1:]
+	class := slugs[0]
+	if !rest.store.HasClass(class) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if r.Method == "GET" {
+		if len(slugs) == 2 && slugs[1] == "_search" {
+			rest.query(w, r)
+			return
+		}
+		rest.getByPath(w, r)
+		return
+	}
+	if r.Method == "POST" {
+		rest.create(w, r)
+		return
+	}
+	w.WriteHeader(http.StatusBadRequest)
 }
 
 func home(w http.ResponseWriter) {
 	// http://anime.en.utf8art.com/arc/ghibli_6.html
 	w.Write([]byte(
-		"	　　　　　　　　　　　　　　　　　 ﾍ\n" +
+		"	　　　　　　　　　　　　　　　 ﾍ\n" +
 			"　　　　　　　　　　　　　　 ﾍ　　　/　|\n" +
 			"　　　　　　　　　　　　　 / ｜　 /　　|\n" +
 			"　　　　　　　　　 }YL　 ﾉ　　|　ﾉ 　 　|\n" +
@@ -54,7 +74,7 @@ func home(w http.ResponseWriter) {
 }
 
 // GetByPath get an object, from its path
-func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
+func (rest *REST) getByPath(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -92,8 +112,8 @@ func (rest *REST) GetByPath(w http.ResponseWriter, r *http.Request) {
 	w.Write(buf.Bytes())
 }
 
-// Query  GET /{slugs}?q={query}
-func (rest *REST) Query(w http.ResponseWriter, r *http.Request) {
+// Query  GET /{class}/_search?q={query}
+func (rest *REST) query(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -127,7 +147,7 @@ func (rest *REST) Query(w http.ResponseWriter, r *http.Request) {
 	w.Write(j)
 }
 
-func (rest *REST) Create(w http.ResponseWriter, r *http.Request) {
+func (rest *REST) create(w http.ResponseWriter, r *http.Request) {
 	l := log.WithField("url", r.URL.String()).WithField("method", r.Method)
 	if r.Method != "POST" {
 		l.Error("Create")

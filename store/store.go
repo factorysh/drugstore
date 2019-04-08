@@ -58,6 +58,11 @@ func (s *Store) Class(name string, paths []string) {
 	s.paths[name] = paths
 }
 
+func (s *Store) HasClass(class string) bool {
+	_, ok := s.paths[class]
+	return ok
+}
+
 // Set Document (create or update)
 func (s *Store) Set(class string, d *Document) error {
 	l := log.WithField("class", class).WithField("document", d)

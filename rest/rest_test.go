@@ -46,7 +46,7 @@ func rest() (*REST, error) {
 func TestPost(t *testing.T) {
 	r, err := rest()
 	assert.NoError(t, err)
-	ts := httptest.NewServer(http.HandlerFunc(r.Create))
+	ts := httptest.NewServer(http.HandlerFunc(r.Handler))
 	defer ts.Close()
 	req, err := http.NewRequest("POST", ts.URL+"/project", bytes.NewReader([]byte(`
 		{
@@ -71,7 +71,7 @@ func TestPost(t *testing.T) {
 func TestGet(t *testing.T) {
 	r, err := rest()
 	assert.NoError(t, err)
-	ts := httptest.NewServer(http.HandlerFunc(r.GetByPath))
+	ts := httptest.NewServer(http.HandlerFunc(r.Handler))
 	defer ts.Close()
 	id, err := uuid.NewRandom()
 	assert.NoError(t, err)
@@ -145,13 +145,12 @@ func TestHome(t *testing.T) {
 	rez, err := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
 	fmt.Println(string(rez))
-	assert.True(t, false)
 }
 
 func TestQuery(t *testing.T) {
 	r, err := rest()
 	assert.NoError(t, err)
-	ts := httptest.NewServer(http.HandlerFunc(r.Query))
+	ts := httptest.NewServer(http.HandlerFunc(r.Handler))
 	defer ts.Close()
 
 	err = r.store.Set("project", &store.Document{
