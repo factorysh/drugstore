@@ -12,10 +12,13 @@ func TestByMapReduce(t *testing.T) {
 	assert.NoError(t, err)
 	lines, err := s.ByMapReduce(PROJECT, []string{"drugstore", "user"}, `
 function map(doc) {
-	emit(doc.name);
+	var name = doc.name;
+	if(name.toLowerCase().substring(0, 1) == "a") {
+		emit(doc.name);
+	}
 }
 	`)
 	assert.NoError(t, err)
 	fmt.Println(lines)
-	assert.Len(t, lines, 2)
+	assert.Len(t, lines, 1)
 }

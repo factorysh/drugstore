@@ -3,6 +3,7 @@ package store
 import (
 	"errors"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
 )
 
@@ -17,6 +18,9 @@ func (s *Store) ByMapReduce(class string, path []string, js string) ([]interface
 		values = append(values, line)
 	}
 	vm.Set("emit", emit)
+	vm.Set("logs", func(stuff interface{}) {
+		spew.Dump(stuff)
+	})
 	prog, err := goja.Compile("map.js", js, true)
 	if err != nil {
 		return nil, err
@@ -32,8 +36,7 @@ func (s *Store) ByMapReduce(class string, path []string, js string) ([]interface
 	}
 
 	for _, doc := range docs {
-		d := vm.ToValue(doc.Data)
-		_, err := _map(nil, d)
+		_, err := _map(nil, vm.ToValue(doc.Data))
 		if err != nil {
 			return nil, err
 		}
