@@ -26,6 +26,14 @@
   version = "v1.7.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:3ef62cb70a9d06ed453bcc4466d2c8cfc1949d4d2529cd2e86c10c2f14dfe440"
+  name = "github.com/dolmen-go/jsonptr"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a830c2c3c0fef87e53a948fac44cfc298e261d94"
+
+[[projects]]
   digest = "1:8c557281af95c95ad1cd2356e3c98b358493994e9d698a44b149a7c61623662c"
   name = "github.com/ethereum/go-ethereum"
   packages = [
@@ -170,6 +178,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/davecgh/go-spew/spew",
+    "github.com/dolmen-go/jsonptr",
     "github.com/ethereum/go-ethereum/rpc",
     "github.com/evanphx/json-patch",
     "github.com/google/uuid",
