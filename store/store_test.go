@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
@@ -14,14 +13,16 @@ const (
 	PROJECT = "project"
 )
 
-func TestStore(t *testing.T) {
+func fixture() (*Store, error) {
 	s, err := New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable")
-	assert.NoError(t, err)
-	assert.NotNil(t, s)
+	if err != nil {
+		return nil, err
+	}
 	s.Class(PROJECT, []string{"project", "ns", "name"})
 	err = s.Reset()
-	assert.NoError(t, err)
-	fmt.Println(s)
+	if err != nil {
+		return nil, err
+	}
 	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
 	err = s.Set(PROJECT, &Document{
 		UID: &uid,
@@ -32,7 +33,9 @@ func TestStore(t *testing.T) {
 			"age":     42,
 		},
 	})
-	assert.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
 	err = s.Set(PROJECT, &Document{
 		UID: &uid,
 		Data: map[string]interface{}{
@@ -42,8 +45,9 @@ func TestStore(t *testing.T) {
 			"age":     42,
 		},
 	})
-	assert.NoError(t, err)
-
+	if err != nil {
+		return nil, err
+	}
 	u := uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9")
 	err = s.Set(PROJECT, &Document{
 		UID: &u,
@@ -54,12 +58,21 @@ func TestStore(t *testing.T) {
 			"age":     18,
 		},
 	})
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+func TestStore(t *testing.T) {
+	s, err := fixture()
 	assert.NoError(t, err)
 
 	l, err := s.Length()
 	assert.NoError(t, err)
 	assert.Equal(t, 2, l)
 
+	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
 	docs, err := s.GetByUUID(uid)
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
