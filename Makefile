@@ -1,3 +1,21 @@
+GIT_VERSION?=$(shell git describe --tags --always --abbrev=42 --dirty)
+
+build: bin vendor
+	go build \
+		-o bin/drugstore \
+		-ldflags "-X github.com/factorysh/drugstore/version.version=$(GIT_VERSION)" \
+		.
+
+bin:
+	mkdir -p bin
+	chmod 777 bin
+
+vendor:
+	dep ensure
+
+clean:
+	rm -rf bin vendor
+
 up:
 	docker-compose up -d
 	sleep 3
