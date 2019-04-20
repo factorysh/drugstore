@@ -1,0 +1,7 @@
+---
+postgresql_dsn: postgresql://drugstore:toto@localhost/drugstore?sslmode=disable
+classes:
+  project:
+    - project
+    - ns
+    - name

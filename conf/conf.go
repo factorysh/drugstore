@@ -2,6 +2,7 @@ package conf
 
 import (
 	"errors"
+	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
 )
@@ -28,4 +29,12 @@ func New(data []byte) (*Conf, error) {
 		return nil, errors.New("You need at least one class")
 	}
 	return &conf, nil
+}
+
+func Read(path string) (*Conf, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return New(data)
 }
