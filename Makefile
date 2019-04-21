@@ -34,3 +34,11 @@ test:
 
 statik:
 	statik -src=public
+
+node_modules:
+	npm install
+
+public/css/bulma.css: node_modules
+	cp node_modules/bulma/css/bulma.css public/css/bulma.css
+
+assets: public/css/bulma.css

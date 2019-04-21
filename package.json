@@ -1,0 +1,23 @@
+{
+  "name": "drugstore",
+  "version": "1.0.0",
+  "description": "Store JSON stuffs in a REST path. Find stuff with [jmespath](http://jmespath.org/).",
+  "main": "index.js",
+  "dependencies": {
+    "bulma": "^0.7.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/factorysh/drugstore.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/factorysh/drugstore/issues"
+  },
+  "homepage": "https://github.com/factorysh/drugstore#readme"
+}

@@ -1,2 +1,4 @@
 vendor
 bin
+node_modules
+public/css/bulma.css
