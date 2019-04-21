@@ -13,7 +13,7 @@ import (
 
 	_ "github.com/factorysh/drugstore/statik"
 	"github.com/factorysh/drugstore/store"
-	"github.com/rakyll/statik/fs"
+	_fs "github.com/rakyll/statik/fs"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,16 +27,21 @@ func New(store *store.Store) (*REST, error) {
 		store: store,
 		mux:   http.NewServeMux(),
 	}
-	statikFS, err := fs.New()
-	if err != nil {
-		return nil, err
-	}
+	var (
+		fs  http.FileSystem
+		err error
+	)
 	public := os.Getenv("PUBLIC")
 	if public == "" {
-		r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
+		fs, err = _fs.New()
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		r.mux.Handle("/public/", http.FileServer(http.Dir(public)))
+		fmt.Println("Using local folder: ", public)
+		fs = http.Dir(public)
 	}
+	r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
 	r.mux.HandleFunc("/", r.Main)
 	return r, nil
 }
