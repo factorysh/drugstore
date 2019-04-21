@@ -154,6 +154,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:3292e345918d94608556cdac342c207a3f9a22f9ef37a0156f5f296c24559a19"
+  name = "github.com/rakyll/statik"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3bac566d30cdbeddef402a80f3d6305860e59f12"
+  version = "v0.1.6"
+
+[[projects]]
   digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
   name = "github.com/rs/cors"
   packages = ["."]
@@ -244,6 +252,7 @@
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "github.com/onrik/logrus/filename",
+    "github.com/rakyll/statik",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "gopkg.in/yaml.v2",

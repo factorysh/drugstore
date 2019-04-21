@@ -1,4 +1,5 @@
 GIT_VERSION?=$(shell git describe --tags --always --abbrev=42 --dirty)
+.PHONY: statik
 
 build: bin vendor
 	go build \
@@ -30,3 +31,6 @@ test:
 	go test -v github.com/factorysh/drugstore/store
 	go test -v github.com/factorysh/drugstore/rpc
 	go test -v github.com/factorysh/drugstore/rest
+
+statik:
+	statik -src=public

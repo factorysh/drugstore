@@ -10,24 +10,37 @@ import (
 
 	"github.com/google/uuid"
 
+	_ "github.com/factorysh/drugstore/statik"
 	"github.com/factorysh/drugstore/store"
+	"github.com/rakyll/statik/fs"
 	log "github.com/sirupsen/logrus"
 )
 
 type REST struct {
 	store *store.Store
+	mux   *http.ServeMux
 }
 
-func New(store *store.Store) *REST {
+func New(store *store.Store) (*REST, error) {
 	r := &REST{
 		store: store,
+		mux:   http.NewServeMux(),
 	}
+	statikFS, err := fs.New()
+	if err != nil {
+		return nil, err
+	}
+	r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
+	r.mux.HandleFunc("/", r.Main)
+	return r, nil
+}
 
-	return r
+func (rest *REST) Handler() func(w http.ResponseWriter, r *http.Request) {
+	return rest.mux.ServeHTTP
 }
 
 // Handler routes all handlers
-func (rest *REST) Handler(w http.ResponseWriter, r *http.Request) {
+func (rest *REST) Main(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		home(w)
 		return

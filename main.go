@@ -28,8 +28,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	r := rest.New(s)
-	http.HandleFunc("/", r.Handler)
+	for k, v := range cfg.Classes {
+		s.Class(k, v)
+	}
+	r, err := rest.New(s)
+	if err != nil {
+		panic(err)
+	}
+	http.HandleFunc("/", r.Handler())
 	fmt.Println(cfg.Listen)
 	http.ListenAndServe(cfg.Listen, nil)
 }
