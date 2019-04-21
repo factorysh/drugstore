@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/google/uuid"
@@ -30,7 +31,12 @@ func New(store *store.Store) (*REST, error) {
 	if err != nil {
 		return nil, err
 	}
-	r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
+	public := os.Getenv("PUBLIC")
+	if public == "" {
+		r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
+	} else {
+		r.mux.Handle("/public/", http.FileServer(http.Dir(public)))
+	}
 	r.mux.HandleFunc("/", r.Main)
 	return r, nil
 }
