@@ -20,6 +20,7 @@ import (
 type REST struct {
 	store *store.Store
 	mux   *http.ServeMux
+	fs    http.FileSystem
 }
 
 func New(store *store.Store) (*REST, error) {
@@ -27,21 +28,18 @@ func New(store *store.Store) (*REST, error) {
 		store: store,
 		mux:   http.NewServeMux(),
 	}
-	var (
-		fs  http.FileSystem
-		err error
-	)
+	var err error
 	public := os.Getenv("PUBLIC")
 	if public == "" {
-		fs, err = _fs.New()
+		r.fs, err = _fs.New()
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		fmt.Println("Using local folder: ", public)
-		fs = http.Dir(public)
+		r.fs = http.Dir(public)
 	}
-	r.mux.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
+	r.mux.Handle("/_public/", http.StripPrefix("/_public/", http.FileServer(r.fs)))
 	r.mux.HandleFunc("/", r.Main)
 	return r, nil
 }
@@ -53,7 +51,7 @@ func (rest *REST) Handler() func(w http.ResponseWriter, r *http.Request) {
 // Handler routes all handlers
 func (rest *REST) Main(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
-		home(w)
+		http.FileServer(rest.fs).ServeHTTP(w, r)
 		return
 	}
 	slugs := strings.Split(r.URL.Path, "/")[1:]
