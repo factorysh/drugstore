@@ -1,0 +1,20 @@
+---
+- group: factorysh
+  project: drugstore
+  ns: dependencies
+  gopkg:
+    github.com/jmoiron/sqlx: v1.2.0
+    github.com/jmespath/go-jmespath: "0.2.2"
+    github.com/evanphx/json-patch: v4.1.0
+    github.com/dop251/goja: 64be363d126e1a249e54a93cd47e475b6bb2e08b
+    gopkg.in/yaml.v2: v2.2.2
+    github.com/rakyll/statik: v0.1.6
+  npm:
+    bulma: "0.7.4"
+- group: factorysh
+  project: docker-mockup-gitlab-issuer
+  ns: dependencies
+  pip:
+    pyjwt: "1.7.1"
+    flask: "1.0.2"
+    cryptography: "2.6.1"
