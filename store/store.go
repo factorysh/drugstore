@@ -63,6 +63,16 @@ func (s *Store) HasClass(class string) bool {
 	return ok
 }
 
+func (s *Store) Classes() []string {
+	c := make([]string, len(s.paths))
+	i := 0
+	for k := range s.paths {
+		c[i] = k
+		i++
+	}
+	return c
+}
+
 // Set Document (create or update)
 func (s *Store) Set(class string, d *Document) error {
 	l := log.WithField("class", class).WithField("document", d)

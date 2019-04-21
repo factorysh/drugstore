@@ -40,12 +40,22 @@ func New(store *store.Store) (*REST, error) {
 		r.fs = http.Dir(public)
 	}
 	r.mux.Handle("/_public/", http.StripPrefix("/_public/", http.FileServer(r.fs)))
+	r.mux.HandleFunc("/_classes", r.classes)
 	r.mux.HandleFunc("/", r.Main)
 	return r, nil
 }
 
 func (rest *REST) Handler() func(w http.ResponseWriter, r *http.Request) {
 	return rest.mux.ServeHTTP
+}
+
+func (rest *REST) classes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	j, err := json.Marshal(rest.store.Classes())
+	if err != nil {
+		w.WriteHeader(500)
+	}
+	w.Write(j)
 }
 
 // Handler routes all handlers
@@ -73,26 +83,6 @@ func (rest *REST) Main(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusBadRequest)
-}
-
-func home(w http.ResponseWriter) {
-	// http://anime.en.utf8art.com/arc/ghibli_6.html
-	w.Write([]byte(
-		"	　　　　　　　　　　　　　　　 ﾍ\n" +
-			"　　　　　　　　　　　　　　 ﾍ　　　/　|\n" +
-			"　　　　　　　　　　　　　 / ｜　 /　　|\n" +
-			"　　　　　　　　　 }YL　 ﾉ　　|　ﾉ 　 　|\n" +
-			"　　　　　　　　　ﾉ　　ヽﾐ}　F′〉　 ｯ┘\n" +
-			"　 　 　　　　　　{^^ . -┴┴‐ミ　　ﾐ.._\n" +
-			"　 　 　　　　　　> ´　　　　　　　　　　ミ､\n" +
-			"　　　　　　　　/　　　　　　　　　　　　　 ﾐ､\n" +
-			"　　　　　　　 ﾉ　　p￣ヽ_　　　　　　　　　ﾐ､\n" +
-			"　　　　　rﾍ⌒　　 `ー ′　　　　　　　　　 ﾐ､\n" +
-			"　　　　ﾆ{^　　　　　　　　　　　　　　　　　　 ﾐ､\n" +
-			"　　　　 〈､_　　　＝三二_ー--　　　　　　　　 l\n" +
-			"　　　　∠_　　　　　ｰ＝= 二_ｰ\n" +
-			"　 　／　　 ¨ヾ､\n" +
-			"　 ﾉﾍ　　　　　　ヽ\n"))
 }
 
 // GetByPath get an object, from its path
