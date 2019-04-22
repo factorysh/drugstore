@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
@@ -13,6 +14,12 @@ const (
 	PROJECT = "project"
 )
 
+var (
+	ALICE  = uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
+	BOB    = uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9")
+	CHARLY = uuid.MustParse("E12C6B1F-EBEA-4987-AFD8-C880B43FD963")
+)
+
 func fixture() (*Store, error) {
 	s, err := New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable")
 	if err != nil {
@@ -23,9 +30,8 @@ func fixture() (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
 	err = s.Set(PROJECT, &Document{
-		UID: &uid,
+		UID: &BOB,
 		Data: map[string]interface{}{
 			"project": "drugstore",
 			"name":    "Bob",
@@ -37,7 +43,7 @@ func fixture() (*Store, error) {
 		return nil, err
 	}
 	err = s.Set(PROJECT, &Document{
-		UID: &uid,
+		UID: &ALICE,
 		Data: map[string]interface{}{
 			"project": "drugstore",
 			"name":    "Alice",
@@ -48,13 +54,12 @@ func fixture() (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	u := uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9")
 	err = s.Set(PROJECT, &Document{
-		UID: &u,
+		UID: &CHARLY,
 		Data: map[string]interface{}{
 			"project": "drugstore",
+			"name":    "Charly",
 			"ns":      "user",
-			"name":    "Charle",
 			"age":     18,
 		},
 	})
@@ -70,15 +75,24 @@ func TestStore(t *testing.T) {
 
 	l, err := s.Length()
 	assert.NoError(t, err)
-	assert.Equal(t, 2, l)
+	assert.Equal(t, 3, l)
+}
 
-	uid := uuid.MustParse("37AD4002-79A6-4752-A912-AEB111871EBE")
-	docs, err := s.GetByUUID(uid)
+func TestByUUID(t *testing.T) {
+	s, err := fixture()
+	assert.NoError(t, err)
+
+	docs, err := s.GetByUUID(ALICE)
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
 	assert.Equal(t, "Alice", docs[0].Data["name"])
+}
 
-	docs, err = s.GetByPath(PROJECT, "drugstore")
+func TestByPath(t *testing.T) {
+	s, err := fixture()
+	assert.NoError(t, err)
+
+	docs, err := s.GetByPath(PROJECT, "drugstore")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
 
@@ -86,17 +100,9 @@ func TestStore(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, docs, 2)
 
-	docs, err = s.GetByPath(PROJECT, "", "", "Charle")
+	docs, err = s.GetByPath(PROJECT, "", "", "Charly")
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
-
-	resp, err := s.GetByJMEspath(PROJECT, "*.user.*[]|[?age>`18`]")
-	assert.NoError(t, err)
-	spew.Dump(resp)
-	r, ok := resp.([]interface{})
-	assert.True(t, ok)
-	assert.Len(t, r, 1)
-	//assert.Equal(t, "Alice", r[0]["name"])
 
 	all, err := s.GetByPath(PROJECT)
 	assert.NoError(t, err)
@@ -107,10 +113,55 @@ func TestStore(t *testing.T) {
 	tree, err := s.Documents2tree(PROJECT, all)
 	assert.NoError(t, err)
 	spew.Dump(tree)
+}
+
+func TestByJMespath(t *testing.T) {
+	s, err := fixture()
+	assert.NoError(t, err)
+
+	resp, err := s.GetByJMEspath(PROJECT, "*.user.*[]|[?age>`18`]")
+	assert.NoError(t, err)
+	spew.Dump(resp)
+	r, ok := resp.([]interface{})
+	assert.True(t, ok)
+	assert.Len(t, r, 1)
+	//assert.Equal(t, "Alice", r[0]["name"])
+}
+
+func TestDelete(t *testing.T) {
+	s, err := fixture()
+	assert.NoError(t, err)
 
 	err = s.Delete(uuid.MustParse("BBED4C33-3925-4E56-A806-A75A7BAB46A9"))
 	assert.NoError(t, err)
+	l, err := s.Length()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, l)
+}
+
+func TestSet(t *testing.T) {
+	s, err := fixture()
+	assert.NoError(t, err)
+	docs := []document{}
+	err = s.db.Select(&docs, "SELECT * FROM document")
+	assert.NoError(t, err)
+	for _, doc := range docs {
+		fmt.Println(string(doc.Data))
+	}
+	fmt.Println("docs: ", docs)
+	l, err := s.Length()
+	assert.NoError(t, err)
+	assert.Equal(t, 3, l)
+	err = s.Set(PROJECT, &Document{
+		Data: map[string]interface{}{
+			"project": "drugstore",
+			"ns":      "user",
+			"name":    "Charly",
+			"age":     21,
+		},
+	})
+	assert.NoError(t, err)
 	l, err = s.Length()
 	assert.NoError(t, err)
-	assert.Equal(t, 1, l)
+	assert.Equal(t, 3, l)
 }

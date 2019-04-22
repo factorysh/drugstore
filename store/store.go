@@ -24,7 +24,15 @@ type Store struct {
 	startPath *regexp.Regexp
 }
 
-var schema = `
+type document struct {
+	UID   uuid.UUID
+	Mtime time.Time
+	Ctime time.Time
+	Class string
+	Data  json.RawMessage
+}
+
+const schema = `
 CREATE TABLE IF NOT EXISTS document (
 	uid         UUID UNIQUE,
 	mtime		TIMESTAMP NOT NULL,
@@ -101,6 +109,7 @@ func (s *Store) Set(class string, d *Document) error {
 		for i, p := range paths {
 			pp[i] = d.Data[p].(string)
 		}
+		fmt.Println("pp: ", pp)
 		alreadyHere, err := s.GetByPath(class, pp...)
 		if err != nil {
 			l.WithError(err).Error()
