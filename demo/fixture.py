@@ -11,6 +11,9 @@ def fixture(target):
         r = requests.post("%s/project" % target, json=f)
         assert r.status_code == 201, r.status_code
         print(r.json())
+    r = requests.get("%s/project/factorysh/drugstore/dependencies" % target)
+    assert r.status_code == 200
+    print(r.json())
 
 
 if __name__ == "__main__":
