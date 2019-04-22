@@ -169,4 +169,10 @@ func TestSet(t *testing.T) {
 	assert.Equal(t, 3, l)
 	d, err := s.GetByUUID(CHARLY)
 	assert.Equal(t, float64(21), d[0].Data["age"])
+	d[0].Data["name"] = "Charles"
+	err = s.Set(PROJECT, &d[0])
+	assert.NoError(t, err)
+	l, err = s.Length()
+	assert.NoError(t, err)
+	assert.Equal(t, 3, l)
 }
