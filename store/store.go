@@ -24,14 +24,6 @@ type Store struct {
 	startPath *regexp.Regexp
 }
 
-type document struct {
-	UID   uuid.UUID
-	Mtime time.Time
-	Ctime time.Time
-	Class string
-	Data  json.RawMessage
-}
-
 const schema = `
 CREATE TABLE IF NOT EXISTS document (
 	uid         UUID UNIQUE,

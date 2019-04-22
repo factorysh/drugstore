@@ -94,11 +94,11 @@ func TestByPath(t *testing.T) {
 
 	docs, err := s.GetByPath(PROJECT, "drugstore")
 	assert.NoError(t, err)
-	assert.Len(t, docs, 2)
+	assert.Len(t, docs, 3)
 
 	docs, err = s.GetByPath(PROJECT, "", "user")
 	assert.NoError(t, err)
-	assert.Len(t, docs, 2)
+	assert.Len(t, docs, 3)
 
 	docs, err = s.GetByPath(PROJECT, "", "", "Charly")
 	assert.NoError(t, err)
@@ -124,7 +124,7 @@ func TestByJMespath(t *testing.T) {
 	spew.Dump(resp)
 	r, ok := resp.([]interface{})
 	assert.True(t, ok)
-	assert.Len(t, r, 1)
+	assert.Len(t, r, 2)
 	//assert.Equal(t, "Alice", r[0]["name"])
 }
 
@@ -142,7 +142,7 @@ func TestDelete(t *testing.T) {
 func TestSet(t *testing.T) {
 	s, err := fixture()
 	assert.NoError(t, err)
-	docs := []document{}
+	docs := []RawDocument{}
 	err = s.db.Select(&docs, "SELECT * FROM document")
 	assert.NoError(t, err)
 	for _, doc := range docs {
