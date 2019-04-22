@@ -9,8 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/uuid"
-
 	_ "github.com/factorysh/drugstore/statik"
 	"github.com/factorysh/drugstore/store"
 	_fs "github.com/rakyll/statik/fs"
@@ -192,13 +190,6 @@ func (rest *REST) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	id, err := uuid.NewRandom()
-	if err != nil {
-		l.Error("Create")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	l = l.WithField("id", id)
 	var data map[string]interface{}
 	err = json.Unmarshal(b, &data)
 	if err != nil {
@@ -207,7 +198,6 @@ func (rest *REST) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = rest.store.Set(class, &store.Document{
-		UID:  &id,
 		Data: data,
 	})
 	if err != nil {
@@ -218,5 +208,5 @@ func (rest *REST) create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 	l.Info("Create")
-	fmt.Fprintf(w, `"%s"`, id.String())
+	w.Write([]byte("{}"))
 }
