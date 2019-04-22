@@ -86,6 +86,9 @@ func TestByUUID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, docs, 1)
 	assert.Equal(t, "Alice", docs[0].Data["name"])
+	docs, err = s.GetByUUID(ALICE, BOB)
+	assert.NoError(t, err)
+	assert.Len(t, docs, 2)
 }
 
 func TestByPath(t *testing.T) {
@@ -164,4 +167,6 @@ func TestSet(t *testing.T) {
 	l, err = s.Length()
 	assert.NoError(t, err)
 	assert.Equal(t, 3, l)
+	d, err := s.GetByUUID(CHARLY)
+	assert.Equal(t, float64(21), d[0].Data["age"])
 }
