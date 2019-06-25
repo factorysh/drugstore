@@ -43,6 +43,8 @@ func (s Schema) DDL(table string) (string, error) {
 			buff.WriteString("text")
 		case "boolean":
 			buff.WriteString("boolean")
+		case "integer":
+			buff.WriteString("integer")
 		}
 	}
 	buff.WriteString("\n);\n")
