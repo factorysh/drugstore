@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -24,7 +25,11 @@ const (
 )
 
 func newStore() (*store.Store, error) {
-	s, err := store.New("postgresql://drugstore:toto@localhost/drugstore?sslmode=disable")
+	h := os.Getenv("DB_HOST")
+	if h == "" {
+		h = "localhost"
+	}
+	s, err := store.New(fmt.Sprintf("postgresql://drugstore:toto@%s/drugstore?sslmode=disable", h))
 	if err != nil {
 		return nil, err
 	}
