@@ -11,10 +11,23 @@ workspace:
   base: /go
   path: src/github.com/factorysh/drugstore
 
+services:
+- name: database
+  image: postgres:9.6
+  ports:
+  - 5432
+  environment:
+      POSTGRES_PASSWORD: toto
+      POSTGRES_USER: drugstore
+      POSTGRES_DB: drugstore
+
+
 steps:
 - name: test
   pull: default
   image: golang
+  environment:
+    DB_HOST: database
   commands:
   - go get -u github.com/golang/dep/cmd/dep
   - dep ensure

@@ -1,8 +1,12 @@
 package schema
 
 import (
+	"database/sql"
 	"fmt"
+	"os"
 	"testing"
+
+	_ "github.com/lib/pq"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -28,5 +32,17 @@ plugin_composer:
 	ddl, err := schema.DDL("project")
 	assert.NoError(t, err)
 	fmt.Println(ddl)
-	assert.True(t, false)
+	if !testing.Short() {
+		h := os.Getenv("DB_HOST")
+		if h == "" {
+			h = "localhost"
+		}
+		connStr := fmt.Sprintf("postgres://drugstore:toto@%s/drugstore?sslmode=disable", h)
+		db, err := sql.Open("postgres", connStr)
+		assert.NoError(t, err)
+		fmt.Println(ddl)
+		rows, err := db.Query(ddl)
+		assert.NoError(t, err)
+		fmt.Println(rows)
+	}
 }
