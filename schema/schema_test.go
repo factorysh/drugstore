@@ -31,9 +31,9 @@ plugin_composer:
 )
 
 func TestDDL(t *testing.T) {
-	schema, err := New([]byte(SCHEMA))
+	schema, err := New("project", []byte(SCHEMA))
 	assert.NoError(t, err)
-	ddl, err := schema.DDL("project")
+	ddl, err := schema.DDL()
 	assert.NoError(t, err)
 	fmt.Println(ddl)
 	if !testing.Short() {
@@ -52,7 +52,7 @@ func TestDDL(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	schema, err := New([]byte(SCHEMA))
+	schema, err := New("project", []byte(SCHEMA))
 	assert.NoError(t, err)
 	var data map[string]interface{}
 	err = json.Unmarshal([]byte(`{
@@ -64,6 +64,4 @@ func TestSet(t *testing.T) {
 	sql, err := schema.Set(data)
 	assert.NoError(t, err)
 	fmt.Println(sql)
-	assert.True(t, false)
-
 }

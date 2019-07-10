@@ -13,42 +13,43 @@ type Column struct {
 	Key  bool   `yaml:"key"`
 }
 
-type Schema map[string]Column
+type Schema struct {
+	name string
+	values map[string]Column
+}
 
-func New(raw []byte) (*Schema, error) {
-	var schema Schema
-	err := yaml.Unmarshal(raw, &schema)
+func New(name string, raw []byte) (*Schema, error) {
+	schema := Schema{ name: name}
+	err := yaml.Unmarshal(raw, &schema.values)
 	if err != nil {
 		return nil, err
 	}
 	return &schema, nil
 }
 
-func (s Schema) DDL(table string) (string, error) {
+func (s Schema) DDL() (string, error) {
 	buff := bytes.Buffer{}
-	buff.WriteString("CREATE TABLE IF NOT EXISTS ")
-	buff.WriteString(table)
-	buff.WriteString(" (\n  id INT PRIMARY KEY")
+	w := bufio.NewWriter(&buff)
+	fmt.Fprintf(w, `CREATE TABLE IF NOT EXISTS %s (
+		  id INT PRIMARY KEY`, s.name)
 	versions := make([]string, 0)
-	for name, column := range s {
+	for name, column := range s.values {
 		if column.Type == "versions" {
 			versions = append(versions, name)
 			continue
 		}
-		buff.WriteString(",\n  \"")
-		buff.WriteString(name)
-		buff.WriteString(`" `)
+		fmt.Fprintf(w, `,
+		"%s" `, name)
 		switch column.Type {
 		case "string":
-			buff.WriteString("TEXT")
+			w.WriteString("TEXT")
 		case "boolean":
-			buff.WriteString("BOOLEAN")
+			w.WriteString("BOOLEAN")
 		case "integer":
-			buff.WriteString("INTEGER")
+			w.WriteString("INTEGER")
 		}
 	}
-	buff.WriteString("\n);\n")
-	w := bufio.NewWriter(&buff)
+	w.WriteString("\n);\n")
 	for _, version := range versions {
 		fmt.Fprintf(w, `
 CREATE TABLE IF NOT EXISTS %s_%s (
@@ -56,7 +57,7 @@ CREATE TABLE IF NOT EXISTS %s_%s (
   version TEXT,
   name TEXT
 );
-  `, table, version, table, table)
+  `, s.name, version, s.name, s.name)
 	}
 	w.Flush()
 	return buff.String(), nil
@@ -65,11 +66,11 @@ CREATE TABLE IF NOT EXISTS %s_%s (
 func (s Schema) Set(doc map[string]interface{}) (string, error) {
 	values := make(map[string]interface{})
 	for key, value := range doc {
-		_, ok := s[key]
+		_, ok := s.values[key]
 		if !ok { // not in the schema
 			continue
 		}
-		switch s[key].Type {
+		switch s.values[key].Type {
 		case "integer":
 			v, ok := value.(int64)
 			if !ok {
@@ -92,7 +93,7 @@ func (s Schema) Set(doc map[string]interface{}) (string, error) {
 	}
 	buff := bytes.Buffer{}
 	w := bufio.NewWriter(&buff)
-	fmt.Fprintf(w, "INSERT INTO %s (", "toto")
+	fmt.Fprintf(w, "INSERT INTO %s (", s.name)
 	cpt := len(values)
 	for k := range values {
 		w.WriteString(k)
