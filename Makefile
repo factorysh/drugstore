@@ -1,5 +1,6 @@
 GIT_VERSION?=$(shell git describe --tags --always --abbrev=42 --dirty)
 .PHONY: statik
+TEST_OPTION?=-v
 
 build: bin vendor
 	go build \
@@ -28,9 +29,11 @@ psql: up
 	PGPASSWORD=toto psql -h localhost -U drugstore drugstore
 
 test:
-	go test -v github.com/factorysh/drugstore/store
-	go test -v github.com/factorysh/drugstore/rpc
-	go test -v github.com/factorysh/drugstore/rest
+	go test $(TEST_OPTION) github.com/factorysh/drugstore/conf
+	go test $(TEST_OPTION) github.com/factorysh/drugstore/rest
+	go test $(TEST_OPTION) github.com/factorysh/drugstore/schema
+	go test $(TEST_OPTION) github.com/factorysh/drugstore/store
+	go test $(TEST_OPTION) github.com/factorysh/drugstore/rpc
 
 statik:
 	statik -src=public
