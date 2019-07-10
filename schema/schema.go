@@ -62,21 +62,66 @@ CREATE TABLE IF NOT EXISTS %s_%s (
 	return buff.String(), nil
 }
 
-func (s Schema) Set(doc map[string]interface{}) error {
+func (s Schema) Set(doc map[string]interface{}) (string, error) {
+	values := make(map[string]interface{})
 	for key, value := range doc {
 		_, ok := s[key]
 		if !ok { // not in the schema
 			continue
 		}
 		switch s[key].Type {
-		case "string":
+		case "integer":
 			v, ok := value.(int64)
 			if !ok {
-				return fmt.Errorf("Not an int : %p", value)
+				return "", fmt.Errorf("Not an int : %p", value)
 			}
-			fmt.Println(v)
-
+			values[key] = v
+		case "string":
+			v, ok := value.(string)
+			if !ok {
+				return "", fmt.Errorf("Not a string : %p", value)
+			}
+			values[key] = v
+		case "boolean":
+			v, ok := value.(bool)
+			if !ok {
+				return "", fmt.Errorf("Not a boolean : %p", value)
+			}
+			values[key] = v
 		}
 	}
-	return nil
+	buff := bytes.Buffer{}
+	w := bufio.NewWriter(&buff)
+	fmt.Fprintf(w, "INSERT INTO %s (", "toto")
+	cpt := len(values)
+	for k := range values {
+		w.WriteString(k)
+		cpt--
+		if cpt > 0 {
+			w.WriteString(", ")
+		}
+	}
+	w.WriteString(") VALUES (")
+	cpt = len(values)
+	for k := range values {
+		w.WriteString(":")
+		w.WriteString(k)
+		cpt--
+		if cpt > 0 {
+			w.WriteString(", ")
+		}
+	}
+	w.WriteString(") ON CONFLICT DO UPDATE SET ")
+	cpt = len(values)
+	for k := range values {
+		fmt.Fprintf(w, " %s = :%s", k, k)
+		cpt--
+		if cpt > 0 {
+			w.WriteString(", ")
+		}
+	}
+	w.WriteString(";")
+	w.Flush()
+	return buff.String(), nil
+
 }

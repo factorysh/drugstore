@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
+	"encoding/json"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSchema(t *testing.T) {
-
-	schema, err := New([]byte(`
+const (
+	SCHEMA = `
 ---
 group:
   type: string
@@ -27,7 +27,11 @@ plugin_node:
   type: versions
 plugin_composer:
   type: versions
-`))
+`
+)
+
+func TestDDL(t *testing.T) {
+	schema, err := New([]byte(SCHEMA))
 	assert.NoError(t, err)
 	ddl, err := schema.DDL("project")
 	assert.NoError(t, err)
@@ -45,4 +49,21 @@ plugin_composer:
 		assert.NoError(t, err)
 		fmt.Println(rows)
 	}
+}
+
+func TestSet(t *testing.T) {
+	schema, err := New([]byte(SCHEMA))
+	assert.NoError(t, err)
+	var data map[string]interface{}
+	err = json.Unmarshal([]byte(`{
+"group": "factory",
+"project": "drugstore",
+"is_drupal": false
+	}`), &data)
+	assert.NoError(t, err)
+	sql, err := schema.Set(data)
+	assert.NoError(t, err)
+	fmt.Println(sql)
+	assert.True(t, false)
+
 }
