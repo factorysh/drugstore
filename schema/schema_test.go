@@ -68,13 +68,20 @@ func TestSet(t *testing.T) {
 }
 }`), &data)
 	assert.NoError(t, err)
-	sql, err := schema.Set(data)
+	sql, values, err := schema.Get(data)
+	assert.NoError(t, err)
+	fmt.Println(sql)
+	db, err := db()
+	assert.NoError(t, err)
+	r, err := db.Exec(sql, values...)
+	assert.NoError(t, err)
+	fmt.Println(r)
+	sql, err = schema.Set(data)
 	assert.NoError(t, err)
 	fmt.Println(sql)
 	if !testing.Short() {
-		db, err := db()
+		rows, err := db.Exec(sql, data)
 		assert.NoError(t, err)
-		rows, err := db.Query(sql)
 		fmt.Println(rows)
 	}
 	assert.False(t, true)

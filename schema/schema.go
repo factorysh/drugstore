@@ -78,6 +78,26 @@ CREATE TABLE IF NOT EXISTS %s_%s (
 	return buff.String(), nil
 }
 
+func (s Schema) Get(doc map[string]interface{}) (string, []interface{}, error) {
+	buff := bytes.Buffer{}
+	w := bufio.NewWriter(&buff)
+	fmt.Fprintf(w, `SELECT id FROM %s WHERE `, s.Name)
+	keys := make([]interface{}, 0)
+	for name, column := range s.Values {
+		if column.Key {
+			keys = append(keys, name)
+		}
+	}
+	for i, key := range keys {
+		fmt.Fprintf(w, `"%s"=$%d`, key, i+1)
+		if i < len(keys)-1 {
+			w.WriteString(" AND ")
+		}
+	}
+	w.Flush()
+	return buff.String(), keys, nil
+}
+
 func (s Schema) Set(doc map[string]interface{}) (string, error) {
 	values := make(map[string]interface{})
 	for key, value := range doc {
