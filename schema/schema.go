@@ -79,7 +79,7 @@ func (s Schema) DDL() (string, error) {
 	for _, version := range versions {
 		fmt.Fprintf(w, `
 CREATE TABLE IF NOT EXISTS %s_%s (
-  %s INT REFERENCES %s (id),
+  %s INT REFERENCES %s (id) ON DELETE CASCADE,
   version TEXT,
   name TEXT
 );
@@ -105,6 +105,15 @@ func (s Schema) where(w *bufio.Writer, n int, doc map[string]interface{}) []inte
 		}
 	}
 	return values
+}
+
+func (s Schema) Delete(doc map[string]interface{}) (string, []interface{}, error) {
+	buff := bytes.Buffer{}
+	w := bufio.NewWriter(&buff)
+	fmt.Fprintf(w, `DELETE FROM %s WHERE `, s.Name)
+	values := s.where(w, 0, doc)
+	w.Flush()
+	return buff.String(), values, nil
 }
 
 // Get query and arguments

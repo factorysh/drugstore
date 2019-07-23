@@ -74,4 +74,9 @@ func TestDB(t *testing.T) {
 	assert.NoError(t, err)
 	err = d.Upsert(data)
 	assert.NoError(t, err)
+	err = d.Delete(map[string]interface{}{
+		"group":   "factory",
+		"project": "drugstore",
+	})
+	assert.NoError(t, err)
 }

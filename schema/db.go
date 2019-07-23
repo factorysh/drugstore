@@ -25,40 +25,47 @@ func (d *DB) Create() error {
 	if err != nil {
 		return err
 	}
+	l := log.WithField("sql", sql)
 	_, err = d.db.Exec(sql)
-	return err
+	if err != nil {
+		log.WithError(err).Error()
+		return err
+	}
+	l.Info()
+	return nil
 }
 
 func (d *DB) Reset() error {
-	tx, err := d.db.Begin()
-	if err != nil {
-		return err
-	}
-	sql := fmt.Sprintf(`TRUNCATE %s`, d.schema.Name)
+	sql := fmt.Sprintf(`TRUNCATE %s CASCADE;`, d.schema.Name)
 	l := log.WithField("sql", sql)
-	_, err = tx.Exec(sql)
+	_, err := d.db.Exec(sql)
 	if err != nil {
-		tx.Rollback()
 		l.WithError(err).Error()
 		return err
 	}
-	versions := d.schema.versions()
-	for _, version := range versions {
-		sql := fmt.Sprintf(`TRUNCATE %s_%s`, d.schema.Name, version)
-		l := l.WithField("sql", sql)
-		_, err = tx.Exec(sql)
-		if err != nil {
-			tx.Rollback()
-			l.WithError(err).Error()
-			return err
-		}
+	l.Info()
+	return nil
+}
+
+func (d *DB) Delete(doc map[string]interface{}) error {
+	sql, values, err := d.schema.Delete(doc)
+	if err != nil {
+		return err
 	}
-	return tx.Commit()
+	l := log.WithField("sql", sql).WithField("values", values)
+	_, err = d.db.Exec(sql, values...)
+	if err != nil {
+		l.WithError(err)
+		return err
+	}
+	l.Info()
+	return nil
 }
 
 func (d *DB) Upsert(doc map[string]interface{}) error {
 	err := d.schema.validate(doc)
 	if err != nil {
+		log.WithError(err).Error()
 		return err
 	}
 	sql, values, err := d.schema.Get(doc)
@@ -92,15 +99,18 @@ func (d *DB) Upsert(doc map[string]interface{}) error {
 			l.WithError(err).Error()
 			return err
 		}
+		l.Info()
 	} else { // UPDATE
 		for _, version := range versions {
 			sql := fmt.Sprintf(`DELETE FROM %s_%s WHERE %s=$1;`, d.schema.Name, version, d.schema.Name)
+			l = l.WithField("sql", sql)
 			_, err := tx.Exec(sql, id)
 			if err != nil {
 				tx.Rollback()
 				l.WithError(err).Error()
 				return err
 			}
+			l.Info()
 		}
 		sql, values, err := d.schema.Update(doc)
 		if err != nil {
@@ -115,6 +125,7 @@ func (d *DB) Upsert(doc map[string]interface{}) error {
 			l.WithError(err).Error()
 			return err
 		}
+		l.Info()
 	}
 	for _, version := range versions {
 		sql := fmt.Sprintf(`INSERT INTO %s_%s (%s, name, version)
@@ -129,6 +140,7 @@ func (d *DB) Upsert(doc map[string]interface{}) error {
 					l.WithError(err).Error()
 					return err
 				}
+				l.Info()
 			}
 		}
 	}
