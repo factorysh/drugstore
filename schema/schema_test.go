@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/lib/pq"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,23 +41,14 @@ func db() (*sql.DB, error) {
 	return sql.Open("postgres", connStr)
 }
 
-func TestDDL(t *testing.T) {
+func TestDB(t *testing.T) {
+	log.SetLevel(log.InfoLevel)
 	schema, err := New("project", []byte(SCHEMA))
 	assert.NoError(t, err)
-	ddl, err := schema.DDL()
+	db, err := db()
 	assert.NoError(t, err)
-	fmt.Println(ddl)
-	if !testing.Short() {
-		db, err := db()
-		assert.NoError(t, err)
-		rows, err := db.Query(ddl)
-		assert.NoError(t, err)
-		fmt.Println(rows)
-	}
-}
-
-func TestSet(t *testing.T) {
-	schema, err := New("project", []byte(SCHEMA))
+	d := NewDB(db, schema)
+	err = d.Create()
 	assert.NoError(t, err)
 	var data map[string]interface{}
 	err = json.Unmarshal([]byte(`{
@@ -68,21 +60,18 @@ func TestSet(t *testing.T) {
 }
 }`), &data)
 	assert.NoError(t, err)
-	sql, values, err := schema.Get(data)
+	err = d.Upsert(data)
 	assert.NoError(t, err)
-	fmt.Println(sql)
-	db, err := db()
+	err = json.Unmarshal([]byte(`{
+"group": "factory",
+"project": "drugstore",
+"is_drupal": false,
+"plugin_node": {
+	"jquery" : "7",
+	"requests" : "2.88.1"
+}
+}`), &data)
 	assert.NoError(t, err)
-	r, err := db.Exec(sql, values...)
+	err = d.Upsert(data)
 	assert.NoError(t, err)
-	fmt.Println(r)
-	sql, err = schema.Set(data)
-	assert.NoError(t, err)
-	fmt.Println(sql)
-	if !testing.Short() {
-		rows, err := db.Exec(sql, data)
-		assert.NoError(t, err)
-		fmt.Println(rows)
-	}
-	assert.False(t, true)
 }
