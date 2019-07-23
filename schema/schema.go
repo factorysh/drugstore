@@ -8,6 +8,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	STRING   = "string"
+	BOOLEAN  = "boolean"
+	INTEGER  = "integer"
+	VERSIONS = "versions"
+)
+
 // Column has a name and can be a key
 type Column struct {
 	Type string `yaml:"type"`
@@ -30,7 +37,7 @@ func New(name string, raw []byte) (*Schema, error) {
 	}
 	schema.directValues = make([]string, 0)
 	for k, v := range schema.Values {
-		if v.Type != "versions" {
+		if v.Type != VERSIONS {
 			schema.directValues = append(schema.directValues, k)
 		}
 	}
@@ -53,11 +60,11 @@ func (s Schema) DDL() (string, error) {
 		fmt.Fprintf(w, `,
 		"%s" `, name)
 		switch column.Type {
-		case "string":
+		case STRING:
 			w.WriteString("TEXT")
-		case "boolean":
+		case BOOLEAN:
 			w.WriteString("BOOLEAN")
-		case "integer":
+		case INTEGER:
 			w.WriteString("INTEGER")
 		}
 		if column.Key {
@@ -133,22 +140,22 @@ func (s *Schema) validate(doc map[string]interface{}) error {
 			continue
 		}
 		switch s.Values[key].Type {
-		case "integer":
+		case INTEGER:
 			_, ok := value.(int64)
 			if !ok {
 				return fmt.Errorf("Not an int : %p", value)
 			}
-		case "string":
+		case STRING:
 			_, ok := value.(string)
 			if !ok {
 				return fmt.Errorf("Not a string : %p", value)
 			}
-		case "boolean":
+		case BOOLEAN:
 			_, ok := value.(bool)
 			if !ok {
 				return fmt.Errorf("Not a boolean : %p", value)
 			}
-		case "versions":
+		case VERSIONS:
 			v, ok := value.(map[string]interface{})
 			if !ok {
 				return fmt.Errorf("Not a versions : %p", value)
@@ -168,7 +175,7 @@ func (s *Schema) keys(doc map[string]interface{}, withKeys bool) []string {
 	keys := make([]string, 0)
 	for k := range doc {
 		t, ok := s.Values[k]
-		if ok && t.Type != "versions" {
+		if ok && t.Type != VERSIONS {
 			if withKeys || !t.Key {
 				keys = append(keys, k)
 			}
@@ -225,7 +232,7 @@ func (s *Schema) Update(doc map[string]interface{}) (string, []interface{}, erro
 func (s *Schema) versions() []string {
 	v := make([]string, 0)
 	for key, value := range s.Values {
-		if value.Type == "versions" {
+		if value.Type == VERSIONS {
 			v = append(v, key)
 		}
 	}
@@ -250,25 +257,25 @@ func (s Schema) Set(doc map[string]interface{}) (string, error) {
 			continue
 		}
 		switch s.Values[key].Type {
-		case "integer":
+		case INTEGER:
 			v, ok := value.(int64)
 			if !ok {
 				return "", fmt.Errorf("Not an int : %p", value)
 			}
 			values[key] = v
-		case "string":
+		case STRING:
 			v, ok := value.(string)
 			if !ok {
 				return "", fmt.Errorf("Not a string : %p", value)
 			}
 			values[key] = v
-		case "boolean":
+		case BOOLEAN:
 			v, ok := value.(bool)
 			if !ok {
 				return "", fmt.Errorf("Not a boolean : %p", value)
 			}
 			values[key] = v
-		case "versions":
+		case VERSIONS:
 			v, ok := value.(map[string]interface{})
 			if !ok {
 				return "", fmt.Errorf("Not a versions : %p", value)
