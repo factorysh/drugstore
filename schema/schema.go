@@ -8,16 +8,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Column has a name and can be a key
 type Column struct {
 	Type string `yaml:"type"`
 	Key  bool   `yaml:"key"`
 }
 
+// Schema describes you stored stuff
 type Schema struct {
 	Name   string
 	Values map[string]Column
 }
 
+// New Schema
 func New(name string, raw []byte) (*Schema, error) {
 	schema := Schema{Name: name}
 	err := yaml.Unmarshal(raw, &schema.Values)
@@ -27,6 +30,7 @@ func New(name string, raw []byte) (*Schema, error) {
 	return &schema, nil
 }
 
+// DDL query
 func (s Schema) DDL() (string, error) {
 	buff := bytes.Buffer{}
 	w := bufio.NewWriter(&buff)
@@ -78,6 +82,7 @@ CREATE TABLE IF NOT EXISTS %s_%s (
 	return buff.String(), nil
 }
 
+// Get query and arguments
 func (s Schema) Get(doc map[string]interface{}) (string, []interface{}, error) {
 	buff := bytes.Buffer{}
 	w := bufio.NewWriter(&buff)
@@ -98,6 +103,7 @@ func (s Schema) Get(doc map[string]interface{}) (string, []interface{}, error) {
 	return buff.String(), keys, nil
 }
 
+// Set query and arguments
 func (s Schema) Set(doc map[string]interface{}) (string, error) {
 	values := make(map[string]interface{})
 	for key, value := range doc {
