@@ -7,7 +7,7 @@
   name = "github.com/aristanetworks/goarista"
   packages = ["monotime"]
   pruneopts = "UT"
-  revision = "55bc7be9dd319639e5b8f276d66d76dd006df2d1"
+  revision = "186a6201b8efc232db8ddab212591470ec924be9"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -26,19 +26,19 @@
   version = "v1.7.1"
 
 [[projects]]
-  digest = "1:72dc2b6056e7097f829260e4a2ff08d32fec6017df1982a66e110ab4128486f8"
+  digest = "1:26d73f0911e537e89d04011f7a65a5cd2d28113d551d4366480b4706b2833e3a"
   name = "github.com/dlclark/regexp2"
   packages = [
     ".",
     "syntax",
   ]
   pruneopts = "UT"
-  revision = "487489b64fb796de2e55f4e8a4ad1e145f80e957"
-  version = "v1.1.6"
+  revision = "92c702aa5812963ef9193a9624191932d44073d7"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:883c54d7f83ed47caf601b7eb4ad271434ba7cc63df2d5a73b68b0086f316bec"
+  digest = "1:8b8b34694b7203d3953b903e34d4b99d753e71da8dc0b5570539fc0cd42eb5ee"
   name = "github.com/dop251/goja"
   packages = [
     ".",
@@ -48,12 +48,13 @@
     "token",
   ]
   pruneopts = "UT"
-  revision = "64be363d126e1a249e54a93cd47e475b6bb2e08b"
+  revision = "aa89e6a4c7339be720f99bae0a56a8f6055b5b3e"
 
 [[projects]]
-  digest = "1:8c557281af95c95ad1cd2356e3c98b358493994e9d698a44b149a7c61623662c"
+  digest = "1:31740229f728e6c04e2bb5f902135ba42936e1bc07b08ad22aa541d664c70929"
   name = "github.com/ethereum/go-ethereum"
   packages = [
+    "common",
     "common/hexutil",
     "common/mclock",
     "log",
@@ -61,16 +62,16 @@
     "rpc",
   ]
   pruneopts = "UT"
-  revision = "4bcc0a37ab70cb79b16893556cffdaad6974e7d8"
-  version = "v1.8.27"
+  revision = "bd05968077f27f7eb083404dd8448157996a8788"
+  version = "v1.9.6"
 
 [[projects]]
-  digest = "1:f1f2bd73c025d24c3b93abf6364bccb802cf2fdedaa44360804c67800e8fab8d"
+  digest = "1:ac425d784b13d49b37a5bbed3ce022677f8f3073b216f05d6adcb9303e27fa0f"
   name = "github.com/evanphx/json-patch"
   packages = ["."]
   pruneopts = "UT"
-  revision = "72bf35d0ff611848c1dc9df0f976c81192392fa5"
-  version = "v4.1.0"
+  revision = "026c730a0dcc5d11f93f1cf1cc65b01247ea7b6f"
+  version = "v4.5.0"
 
 [[projects]]
   digest = "1:3e658acf1e5e75c289ba64c08c6006382980f6cbcf3b17505adc95f4dafa40f6"
@@ -98,6 +99,14 @@
   pruneopts = "UT"
   revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:e62657cca9badaa308d86e7716083e4c5933bb78e30a17743fc67f50be26f6f4"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b"
+  version = "v1.4.1"
 
 [[projects]]
   digest = "1:b87714e57a511d88f307aba7d5b63522da12bed0a050889c81272fc50f71100e"
@@ -142,8 +151,8 @@
   name = "github.com/onrik/logrus"
   packages = ["filename"]
   pruneopts = "UT"
-  revision = "a09d5cdcdc628f91fda03e7dcaf2b9a624aae49c"
-  version = "0.2.2"
+  revision = "94ad747c51752e8dfa69cfd0335b8c76bf1ae592"
+  version = "v0.4.1"
 
 [[projects]]
   branch = "master"
@@ -152,6 +161,14 @@
   packages = ["gzip"]
   pruneopts = "UT"
   revision = "ef6356a5d02936b65ca8e60b604ed6b078aac8d3"
+
+[[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -170,28 +187,28 @@
   version = "v0.1.6"
 
 [[projects]]
-  digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"
+  digest = "1:c5dfe46811af7e2eff7c11fc84b6c841520338613c056f659f262d5a4fb42fa8"
   name = "github.com/rs/cors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
-  version = "v1.6.0"
+  revision = "db0fe48135e83b5812a5a31be0eea66984b1b521"
+  version = "v1.7.0"
 
 [[projects]]
-  digest = "1:fd61cf4ae1953d55df708acb6b91492d538f49c305b364a014049914495db426"
+  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8bdbc7bcc01dcbb8ec23dc8a28e332258d25251f"
-  version = "v1.4.1"
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
 
 [[projects]]
-  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  digest = "1:8548c309c65a85933a625be5e7d52b6ac927ca30c56869fae58123b8a77a75e1"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   pruneopts = "UT"
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:d688f4ad71b5dfad95c2d74cb0feac09f8f3c32ae5cecc078230dbdeece39e53"
@@ -203,22 +220,25 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7427036b6d926b3d1fa0773771820735b35554a98296f1074df440ee30a97296"
-  name = "golang.org/x/net"
-  packages = ["websocket"]
+  digest = "1:e6575ce7fb96b6eb87dc0e7b7f861c78f1f98ddae45277bdd8004578ff665dfb"
+  name = "golang.org/x/crypto"
+  packages = ["sha3"]
   pruneopts = "UT"
-  revision = "afa5a82059c6356159f699d81beff22a81842231"
+  revision = "34f69633bfdcf9db92f698f8487115767eebef81"
 
 [[projects]]
   branch = "master"
-  digest = "1:dbe12489f5cb00d492e275a29528c9e336dbe5af75ce366f81c1911faf10733e"
+  digest = "1:c46e7faf5cd3cf81af6fc5149148607fccf6a26108eaa06317d37adea36273e8"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "cpu",
+    "unix",
+  ]
   pruneopts = "UT"
-  revision = "e8e3143a4f4a00f1fafef0dd82ba78223281b01b"
+  revision = "b397fe3ad8ed895c98fa54584f61835a88e65ff5"
 
 [[projects]]
-  digest = "1:0f60a87d38e0f08d784e6a11a700314475970acfd7f5a14929e55facaba54ac8"
+  digest = "1:8d964db8360c12a4063c24530c3462ae8af38ef4036db992841eb86478db6490"
   name = "golang.org/x/text"
   packages = [
     "cases",
@@ -227,6 +247,8 @@
     "internal",
     "internal/colltab",
     "internal/gen",
+    "internal/language",
+    "internal/language/compact",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
@@ -236,8 +258,8 @@
     "unicode/norm",
   ]
   pruneopts = "UT"
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "v2"
@@ -248,12 +270,12 @@
   revision = "c1b8fa8bdccecb0b8db834ee0b92fdbcfa606dd6"
 
 [[projects]]
-  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
+  digest = "1:59f10c1537d2199d9115d946927fe31165959a95190849c82ff11e05803528b0"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "UT"
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "f221b8435cfb71e54062f6c6e99e9ade30b124d5"
+  version = "v2.2.4"
 
 [solve-meta]
   analyzer-name = "dep"
